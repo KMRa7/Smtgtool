@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サポートMTGツール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            background-color: #f9f9f9;
+        }
+
+        h2,
+        h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .button-group button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .button-group .line {
+            background-color: #28a745;
+        }
+
+        .button-group .meo {
+            background-color: #007bff;
+        }
+
+        .button-group button.active {
+            background-color: #ffcc00 !important;
+            color: black !important;
+            font-weight: bold;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .personality-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .personality-group button {
+            background-color: #ccc;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #999;
+            cursor: pointer;
+        }
+
+        .personality-group button.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #copyMessage {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+
+        #copyButton {
+            background-color: #007bff;
+            color: white;
+            display: block;
+            margin: 20px auto;
+        }
+
+        #formContainer {
+            display: none;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>サポートMTGツール</h2>
+    <div class="button-group">
+        <button class="line" onclick="toggleForm('LINE')">LINE</button>
+        <button class="meo" onclick="toggleForm('MEO')">MEO</button>
+    </div>
+
+    <div id="formContainer">
+        <label>店舗名：</label>
+        <input type="text" id="storeName">
+
+        <label>人柄：</label>
+        <input type="text" id="personality" readonly>
+        <div class="personality-group" id="personalityButtons"></div>
+
+        <label>備考：</label>
+        <textarea id="notes"></textarea>
+
+        <h3>◆修正・変更・追加設定◆</h3>
+        <textarea id="changes"></textarea>
+
+        <h3 id="contentTitle">◆MTG内容◆</h3>
+        <textarea id="mtgContent"></textarea>
+
+        <div id="meoMtgField" style="display: none;">
+            <h3>◆MTG内容（MEO）◆</h3>
+            <textarea id="meoMtgContent"></textarea>
+        </div>
+
+        <h3>◆次回予定◆</h3>
+        <textarea id="nextPlan"></textarea>
+
+        <div id="meoFields" style="display: none;">
+            <h3>◆現状ステータス◆</h3>
+            <label>クチコミ数：</label>
+            <input type="text" id="reviewCount">
+            <label>アンケート数：</label>
+            <input type="text" id="surveyCount">
+            <label>検索順位：</label>
+            <input type="text" id="searchRank">
+        </div>
+
+        <h3>◆オンボ進捗◆</h3>
+        <div class="checkbox-group" id="onboardingOptions"></div>
+
+        <button id="copyButton" onclick="copyToClipboard()">コピー</button>
+        <div id="copyMessage">コピーしました！</div>
+    </div>
+
+    <script>
+        let selectedType = "";
+        const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人"];
+        let selectedPersonalities = [];
+
+        function toggleForm(type) {
+            document.getElementById("formContainer").style.display = "block";
+            document.querySelector(".line").classList.remove("active");
+            document.querySelector(".meo").classList.remove("active");
+
+            if (type === "LINE") {
+                document.querySelector(".line").classList.add("active");
+                document.getElementById("meoFields").style.display = "none";
+                document.getElementById("meoMtgField").style.display = "none"; // MEO用のMTG入力欄を非表示
+                document.getElementById("contentTitle").textContent = "◆MTG内容◆";
+                document.getElementById("onboardingOptions").innerHTML = `
+            <label><input type="checkbox" id="addFriend"> 友達追加</label>
+            <label><input type="checkbox" id="greetMessage"> 挨拶メッセージ</label>
+            <label><input type="checkbox" id="broadcast"> 一斉配信</label>
+            <label><input type="checkbox" id="coupon"> クーポン作成</label>
+        `;
+            } else if (type === "MEO") {
+                document.querySelector(".meo").classList.add("active");
+                document.getElementById("meoFields").style.display = "block";
+                document.getElementById("meoMtgField").style.display = "block"; // MEO用のMTG入力欄を表示
+                document.getElementById("contentTitle").textContent = "◆顧客共有内容◆";
+                document.getElementById("onboardingOptions").innerHTML = `
+            <label><input type="checkbox" id="latestPost"> 最新の投稿</label>
+            <label><input type="checkbox" id="logoCover"> ロゴ・カバー</label>
+            <label><input type="checkbox" id="keywordPost"> キーワード投稿</label>
+            <label><input type="checkbox" id="survey"> アンケート</label>
+        `;
+            }
+            selectedType = type;
+        }
+
+
+        function setupPersonalityButtons() {
+            const personalityContainer = document.getElementById("personalityButtons");
+            personalityOptions.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = function () {
+                    if (selectedPersonalities.includes(option)) {
+                        selectedPersonalities = selectedPersonalities.filter(p => p !== option);
+                        button.classList.remove("selected");
+                    } else {
+                        selectedPersonalities.push(option);
+                        button.classList.add("selected");
+                    }
+                    document.getElementById("personality").value = selectedPersonalities.join("、");
+                };
+                personalityContainer.appendChild(button);
+            });
+        }
+
+        function copyToClipboard() {
+            const storeName = document.getElementById("storeName").value;
+            const personality = document.getElementById("personality").value;
+            const notes = document.getElementById("notes").value;
+            const changes = document.getElementById("changes").value;
+            const mtgContent = document.getElementById("mtgContent").value;
+            const nextPlan = document.getElementById("nextPlan").value;
+
+            let outputText = "";
+
+            if (selectedType === "LINE") {
+                const addFriend = document.getElementById("addFriend").checked ? "〇" : "×";
+                const greetMessage = document.getElementById("greetMessage").checked ? "〇" : "×";
+                const broadcast = document.getElementById("broadcast").checked ? "〇" : "×";
+                const coupon = document.getElementById("coupon").checked ? "〇" : "×";
+
+                outputText = `L【サポートMTG】\n店舗名：${storeName}\n人柄：${personality}\n備考：${notes}\n\n◆修正・変更・追加設定◆\n${changes}\n\n◆MTG内容◆\n${mtgContent}\n\n◆次回予定◆\n${nextPlan}\n\n◆オンボ進捗◆\n友達追加：${addFriend}\n挨拶メッセージ：${greetMessage}\n一斉配信：${broadcast}\nクーポン作成：${coupon}`;
+            } else if (selectedType === "MEO") {
+                const meoMtgContent = document.getElementById("meoMtgContent").value;
+                const latestPost = document.getElementById("latestPost").checked ? "〇" : "×";
+                const logoCover = document.getElementById("logoCover").checked ? "〇" : "×";
+                const keywordPost = document.getElementById("keywordPost").checked ? "〇" : "×";
+                const survey = document.getElementById("survey").checked ? "〇" : "×";
+
+                const reviewCount = document.getElementById("reviewCount").value;
+                const surveyCount = document.getElementById("surveyCount").value;
+                const searchRank = document.getElementById("searchRank").value;
+
+                outputText = `M【サポートMTG】\n店舗名：${storeName}\n人柄：${personality}\n備考：${notes}\n\n◆修正・変更・追加設定◆\n${changes}\n\n◆顧客共有内容◆\n${mtgContent}\n\n◆MTG内容◆\n${meoMtgContent}\n\n◆次回予定◆\n${nextPlan}\n\n◆現状ステータス◆\nクチコミ数：${reviewCount}\nアンケート数：${surveyCount}\n検索順位：${searchRank}\n\n◆オンボ進捗◆\n・最新の投稿：${latestPost}\n・ロゴ・カバー：${logoCover}\n・キーワード投稿：${keywordPost}\n・アンケート：${survey}`;
+            }
+
+            if (outputText) {
+                navigator.clipboard.writeText(outputText).then(() => {
+                    document.getElementById("copyMessage").style.display = "block";
+                    setTimeout(() => document.getElementById("copyMessage").style.display = "none", 2000);
+                });
+            }
+        }
+
+
+
+        setupPersonalityButtons();
+    </script>
+</body>
+
+</html>
