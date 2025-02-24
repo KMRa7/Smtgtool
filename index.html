@@ -162,6 +162,28 @@
             font-weight: bold;
             border: 1px solid #0056b3;
         }
+
+        .crosssell-check-button {
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 2px;
+        }
+
+        .crosssell-check-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .crosssell-check-button.selected {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border: 1px solid #0056b3;
+        }
     </style>
 </head>
 
@@ -211,13 +233,8 @@
         <div class="checkbox-group" id="onboardingOptions"></div>
 
         <h3>◆クロスセル内容◆</h3>
-        <div class="checkbox-group" id="crosssellOptions"></div>
-        <input type="hidden" id="crosssell">
-
-        <h3>◆チェック項目◆</h3>
-        <div class="checkbox-group" id="checkOptions"></div>
-        <input type="hidden" id="checkSelected">
-
+        <div id="crosssellCheckGroup" class="checkbox-group"></div>
+        <input type="hidden" id="crosssellCheckSelected">
 
         <h3>◆クロスセル状況◆</h3>
         <textarea id="crosssellStatus"></textarea>
@@ -233,8 +250,6 @@
         let selectedType = "";
         const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人"];
         let selectedPersonalities = [];
-        const crosssellOptions = ["WiFi", "電気", "ガス", "携帯", "決済サービス"];
-        let selectedCrosssell = [];
 
         function toggleForm(type) {
             document.getElementById("formContainer").style.display = "block";
@@ -302,71 +317,55 @@
             });
         }
 
-        function setupCrosssellButtons() {
-            const container = document.getElementById("crosssellOptions");
-            container.innerHTML = ""; // 既存の内容をクリア
-
-            crosssellOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.classList.add("crosssell-button");
-
-                // 選択状態を管理
-                button.onclick = function () {
-                    if (selectedCrosssell.includes(option)) {
-                        selectedCrosssell = selectedCrosssell.filter(p => p !== option);
-                        button.classList.remove("selected"); // 選択解除時
-                    } else {
-                        selectedCrosssell.push(option);
-                        button.classList.add("selected"); // 選択時
-                    }
-                    document.getElementById("crosssell").value = selectedCrosssell.join("、");
-                };
-
-                container.appendChild(button);
-            });
-        }
-
-
-        // HTMLの読み込み後に関数を実行する
         document.addEventListener("DOMContentLoaded", function () {
-            setupCrosssellButtons();
+            const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス"];
+            const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中"];
+            let selectedCrosssellChecks = {};
+
+            function setupCrosssellCheckButtons() {
+                const container = document.getElementById("crosssellCheckGroup");
+                container.innerHTML = ""; // 初期化
+
+                crosssellItems.forEach(item => {
+                    const itemGroup = document.createElement("div");
+                    itemGroup.innerHTML = `<strong>${item}</strong>`;
+                    itemGroup.style.marginBottom = "10px";
+
+                    selectedCrosssellChecks[item] = ""; // 初期状態
+
+                    checkStatuses.forEach(status => {
+                        const button = document.createElement("button");
+                        button.textContent = status;
+                        button.classList.add("crosssell-check-button");
+
+                        button.onclick = function () {
+                            // そのアイテムの選択状態をリセット
+                            Array.from(itemGroup.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+
+                            // 新しい選択を適用
+                            selectedCrosssellChecks[item] = status;
+                            button.classList.add("selected");
+
+                            updateCrosssellCheckHiddenField();
+                        };
+
+                        itemGroup.appendChild(button);
+                    });
+                    container.appendChild(itemGroup);
+                });
+            }
+
+            function updateCrosssellCheckHiddenField() {
+                let crosssellCheckText = Object.entries(selectedCrosssellChecks)
+                    .filter(([_, status]) => status !== "")
+                    .map(([item, status]) => `${item}：${status}`)
+                    .join("、\n");
+
+                document.getElementById("crosssellCheckSelected").value = crosssellCheckText;
+            }
+
+            setupCrosssellCheckButtons();
         });
-
-        let selectedCheckItem = ""; // 選択されたチェック項目
-
-        const checkOptions = ["案内済み(受注)", "案内済み(失注)", "案内まだ"];
-
-        function setupCheckButtons() {
-            const container = document.getElementById("checkOptions");
-            container.innerHTML = ""; // 既存の内容をクリア
-
-            checkOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.classList.add("check-button");
-
-                button.onclick = function () {
-                    // すべてのボタンの選択を解除
-                    document.querySelectorAll(".check-button").forEach(btn => btn.classList.remove("selected"));
-
-                    // 選択状態を適用
-                    selectedCheckItem = option;
-                    button.classList.add("selected");
-                    document.getElementById("checkSelected").value = selectedCheckItem; // 隠し入力フィールドにセット
-                };
-
-                container.appendChild(button);
-            });
-        }
-
-        // HTMLの読み込み後に関数を実行する
-        document.addEventListener("DOMContentLoaded", function () {
-            setupCrosssellButtons();
-            setupCheckButtons(); // チェック項目のセットアップ
-        });
-
-
 
         function copyToClipboard() {
             const storeName = document.getElementById("storeName").value;
@@ -375,10 +374,9 @@
             const changes = document.getElementById("changes").value;
             const mtgContent = document.getElementById("mtgContent").value;
             const nextPlan = document.getElementById("nextPlan").value;
-            const crosssellList = selectedCrosssell.join("、"); // クロスセル選択項目
             const crosssellStatus = document.getElementById("crosssellStatus").value;
             const crosssellNotes = document.getElementById("crosssellNotes").value;
-            const checkSelected = document.getElementById("checkSelected").value; // 選択されたチェック項目
+            const checkSelected = document.getElementById("crosssellCheckSelected").value; // 修正
 
             let outputText = "";
 
@@ -388,7 +386,34 @@
                 const broadcast = document.getElementById("broadcast").checked ? "〇" : "×";
                 const coupon = document.getElementById("coupon").checked ? "〇" : "×";
 
-                outputText = `L【サポートMTG】\n店舗名：${storeName}\n人柄：${personality}\n備考：${notes}\n\n◆修正・変更・追加設定◆\n${changes}\n\n◆MTG内容◆\n${mtgContent}\n\n◆次回予定◆\n${nextPlan}\n\n◆オンボ進捗◆\n友達追加：${addFriend}\n挨拶メッセージ：${greetMessage}\n一斉配信：${broadcast}\nクーポン作成：${coupon}\n\n◆クロスセル内容◆\n${crosssellList}\n\n◆チェック項目◆\n${checkSelected}\n\n◆クロスセル状況◆\n${crosssellStatus}\n\n◆クロスセル備考◆\n${crosssellNotes}`;
+                outputText = `L【サポートMTG】
+店舗名：${storeName}
+人柄：${personality}
+備考：${notes}
+
+◆修正・変更・追加設定◆
+${changes}
+
+◆MTG内容◆
+${mtgContent}
+
+◆次回予定◆
+${nextPlan}
+
+◆オンボ進捗◆
+・友達追加：${addFriend}
+・挨拶メッセージ：${greetMessage}
+・一斉配信：${broadcast}
+・クーポン作成：${coupon}
+
+◆クロスセル内容◆
+${checkSelected}
+
+◆クロスセル状況◆
+${crosssellStatus}
+
+◆クロスセル備考◆
+${crosssellNotes}`;
             } else if (selectedType === "MEO") {
                 const meoMtgContent = document.getElementById("meoMtgContent").value;
                 const latestPost = document.getElementById("latestPost").checked ? "〇" : "×";
@@ -400,19 +425,56 @@
                 const surveyCount = document.getElementById("surveyCount").value;
                 const searchRank = document.getElementById("searchRank").value;
 
-                outputText = `M【サポートMTG】\n店舗名：${storeName}\n人柄：${personality}\n備考：${notes}\n\n◆修正・変更・追加設定◆\n${changes}\n\n◆顧客共有内容◆\n${mtgContent}\n\n◆MTG内容◆\n${meoMtgContent}\n\n◆次回予定◆\n${nextPlan}\n\n◆現状ステータス◆\nクチコミ数：${reviewCount}\nアンケート数：${surveyCount}\n検索順位：${searchRank}\n\n◆オンボ進捗◆\n・最新の投稿：${latestPost}\n・ロゴ・カバー：${logoCover}\n・キーワード投稿：${keywordPost}\n・アンケート：${survey}\n\n◆クロスセル内容◆\n${crosssellList}\n\n◆チェック項目◆\n${checkSelected}\n\n◆クロスセル状況◆\n${crosssellStatus}\n\n◆クロスセル備考◆\n${crosssellNotes}`;
+                outputText = `M【サポートMTG】
+店舗名：${storeName}
+人柄：${personality}
+備考：${notes}
+
+◆修正・変更・追加設定◆
+${changes}
+
+◆顧客共有内容◆
+${mtgContent}
+
+◆MTG内容◆
+${meoMtgContent}
+
+◆次回予定◆
+${nextPlan}
+
+◆現状ステータス◆
+・クチコミ数：${reviewCount}
+・アンケート数：${surveyCount}
+・検索順位：${searchRank}
+
+◆オンボ進捗◆
+・最新の投稿：${latestPost}
+・ロゴ・カバー：${logoCover}
+・キーワード投稿：${keywordPost}
+・アンケート：${survey}
+
+◆クロスセル内容◆
+${checkSelected}
+
+◆クロスセル状況◆
+${crosssellStatus}
+
+◆クロスセル備考◆
+${crosssellNotes}`;
             }
 
             if (outputText) {
                 navigator.clipboard.writeText(outputText).then(() => {
                     document.getElementById("copyMessage").style.display = "block";
                     setTimeout(() => document.getElementById("copyMessage").style.display = "none", 2000);
+                }).catch(err => {
+                    console.error("コピーに失敗しました: ", err);
                 });
             }
         }
 
-
         setupPersonalityButtons();
+        setupCrosssellCheckButtons();
 
     </script>
 </body>
