@@ -244,6 +244,194 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const storeNameInput = document.getElementById("storeName");
+
+            // **保存する入力フィールドリスト**
+            const inputFields = ["personality", "notes", "changes", "mtgContent", "meoMtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes"];
+
+            // **オンボ進捗のチェックボックス**
+            function getOnboardingCheckboxes() {
+                return document.querySelectorAll("#onboardingOptions input[type='checkbox']");
+            }
+
+            // **クロスセル関連**
+            const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス"];
+            const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
+            let selectedCrosssellChecks = {};
+
+            function restoreData(storeName) {
+                const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+
+                if (savedData[storeName]) {
+                    const data = savedData[storeName];
+
+                    // **入力フィールドの復元**
+                    inputFields.forEach(field => {
+                        if (data[field] !== undefined) {
+                            document.getElementById(field).value = data[field];
+                        }
+                    });
+
+                    // **オンボ進捗の復元**
+                    if (data["onboarding"]) {
+                        getOnboardingCheckboxes().forEach(checkbox => {
+                            if (data["onboarding"].hasOwnProperty(checkbox.id)) {
+                                checkbox.checked = data["onboarding"][checkbox.id];
+                            }
+                        });
+                    }
+
+                    // **クロスセルチェックボタンの復元**
+                    selectedCrosssellChecks = data["crosssellSelections"] || {};
+                    setupCrosssellCheckButtons();
+
+                    // **コピー用テキストを更新**
+                    updateCrosssellCheckHiddenField();
+                } else {
+                    resetFields();
+                }
+            }
+
+            function saveData(storeName) {
+                let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+                if (!savedData[storeName]) savedData[storeName] = {};
+
+                // **入力フィールドの保存**
+                inputFields.forEach(field => {
+                    savedData[storeName][field] = document.getElementById(field).value;
+                });
+
+                // **オンボ進捗の保存**
+                if (!savedData[storeName]["onboarding"]) savedData[storeName]["onboarding"] = {};
+                getOnboardingCheckboxes().forEach(checkbox => {
+                    savedData[storeName]["onboarding"][checkbox.id] = checkbox.checked;
+                });
+
+                // **クロスセルチェックボタンの保存**
+                savedData[storeName]["crosssellSelections"] = selectedCrosssellChecks;
+
+                // **ローカルストレージに保存**
+                localStorage.setItem("storeData", JSON.stringify(savedData));
+            }
+
+            function resetFields() {
+                inputFields.forEach(field => {
+                    document.getElementById(field).value = "";
+                });
+
+                getOnboardingCheckboxes().forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+                selectedCrosssellChecks = {};
+                setupCrosssellCheckButtons();
+            }
+
+            function setupCrosssellCheckButtons() {
+                const container = document.getElementById("crosssellCheckGroup");
+                container.innerHTML = "";
+
+                crosssellItems.forEach(item => {
+                    const itemGroup = document.createElement("div");
+                    itemGroup.innerHTML = `<strong>${item}</strong>`;
+                    itemGroup.style.marginBottom = "10px";
+
+                    checkStatuses.forEach(status => {
+                        const button = document.createElement("button");
+                        button.textContent = status;
+                        button.classList.add("crosssell-check-button");
+
+                        // **保存データを適用して選択状態を復元**
+                        if (selectedCrosssellChecks[item] === status) {
+                            button.classList.add("selected");
+                        }
+
+                        button.onclick = function () {
+                            if (selectedCrosssellChecks[item] === status) {
+                                selectedCrosssellChecks[item] = "";
+                                button.classList.remove("selected");
+                            } else {
+                                Array.from(itemGroup.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                                selectedCrosssellChecks[item] = status;
+                                button.classList.add("selected");
+                            }
+                            updateCrosssellCheckHiddenField();
+                            saveData(storeNameInput.value.trim());
+                        };
+
+                        itemGroup.appendChild(button);
+                    });
+
+                    container.appendChild(itemGroup);
+                });
+
+                // **コピー用テキストを更新**
+                updateCrosssellCheckHiddenField();
+            }
+
+            function updateCrosssellCheckHiddenField() {
+                let crosssellCheckText = Object.entries(selectedCrosssellChecks)
+                    .filter(([_, status]) => status !== "")
+                    .map(([item, status]) => `${item}：${status}`)
+                    .join("、\n");
+
+                document.getElementById("crosssellCheckSelected").value = crosssellCheckText;
+            }
+
+            function copyToClipboard() {
+                updateCrosssellCheckHiddenField(); // **コピー直前に最新データを取得**
+
+                const storeName = document.getElementById("storeName").value;
+                const checkSelected = document.getElementById("crosssellCheckSelected").value;
+
+                let outputText = `【店舗情報】
+店舗名：${storeName}
+
+◆クロスセル内容◆
+${checkSelected}`;
+
+                if (outputText) {
+                    navigator.clipboard.writeText(outputText).then(() => {
+                        alert("コピーしました！");
+                    }).catch(err => {
+                        console.error("コピーに失敗しました: ", err);
+                    });
+                }
+            }
+
+            // **店舗名を入力すると過去データを復元**
+            storeNameInput.addEventListener("input", function () {
+                const storeName = this.value.trim();
+                if (storeName) {
+                    restoreData(storeName);
+                }
+            });
+
+            // **チェックボックスの変更を検出し、保存**
+            document.addEventListener("change", function (event) {
+                if (event.target.matches("#onboardingOptions input[type='checkbox']")) {
+                    const storeName = storeNameInput.value.trim();
+                    if (storeName) {
+                        saveData(storeName);
+                    }
+                }
+            });
+
+            // **テキスト入力の変更を検出し、保存**
+            inputFields.forEach(field => {
+                document.getElementById(field).addEventListener("input", function () {
+                    const storeName = storeNameInput.value.trim();
+                    if (storeName) {
+                        saveData(storeName);
+                    }
+                });
+            });
+
+            setupCrosssellCheckButtons();
+        });
+
+        
         let selectedType = "";
         const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人"];
         let selectedPersonalities = [];
@@ -480,7 +668,6 @@ ${crosssellNotes}`;
 
         setupPersonalityButtons();
         setupCrosssellCheckButtons();
-
     </script>
 </body>
 
