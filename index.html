@@ -316,7 +316,7 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス"];
-            const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中"];
+            const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
             let selectedCrosssellChecks = {};
 
             function setupCrosssellCheckButtons() {
@@ -336,6 +336,21 @@
                         button.classList.add("crosssell-check-button");
 
                         button.onclick = function () {
+                            if (selectedCrosssellChecks[item] === status) {
+                                // すでに選択されている場合、選択解除
+                                selectedCrosssellChecks[item] = "";
+                                button.classList.remove("selected");
+                            } else {
+                                // そのアイテムの選択状態をリセット
+                                Array.from(itemGroup.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+
+                                // 新しい選択を適用
+                                selectedCrosssellChecks[item] = status;
+                                button.classList.add("selected");
+                            }
+                            updateCrosssellCheckHiddenField();
+                        };
+                        /*button.onclick = function () {
                             // そのアイテムの選択状態をリセット
                             Array.from(itemGroup.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
 
@@ -344,7 +359,7 @@
                             button.classList.add("selected");
 
                             updateCrosssellCheckHiddenField();
-                        };
+                        };*/
 
                         itemGroup.appendChild(button);
                     });
