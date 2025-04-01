@@ -5,187 +5,334 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>サポートMTGツール</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #ced4da;
+            --gray-dark: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            max-width: 600px;
-            margin: auto;
-            background-color: #f9f9f9;
         }
 
-        h2,
-        h3 {
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
             text-align: center;
-            color: #333;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
         }
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
+        h1 {
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 700;
         }
 
-        input,
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+            margin: 25px 0 15px;
         }
 
-        textarea {
-            height: 100px;
-        }
-
-        .button-group {
+        .tabs {
             display: flex;
-            justify-content: space-around;
+            margin-bottom: 30px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background-color: white;
+            color: var(--gray-dark);
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab.line {
+            border-right: 1px solid var(--gray-light);
+        }
+
+        .tab.line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #06C755;
+            transform: translateY(-100%);
+            transition: var(--transition);
+        }
+
+        .tab.meo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--primary);
+            transform: translateY(-100%);
+            transition: var(--transition);
+        }
+
+        .tab.active.line {
+            color: #06C755;
+        }
+
+        .tab.active.meo {
+            color: var(--primary);
+        }
+
+        .tab.active::before {
+            transform: translateY(0);
+        }
+
+        .tab i {
+            margin-right: 8px;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .button-group button {
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            color: white;
-            transition: background-color 0.3s;
-        }
-
-        .button-group .line {
-            background-color: #28a745;
-        }
-
-        .button-group .meo {
-            background-color: #007bff;
-        }
-
-        .button-group button.active {
-            background-color: #ffcc00 !important;
-            color: black !important;
-            font-weight: bold;
-        }
-
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .personality-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        .personality-group button {
-            background-color: #ccc;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            border: 1px solid #999;
-            cursor: pointer;
-        }
-
-        .personality-group button.selected {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .shared-content-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        .shared-content-group button {
-            background-color: #ccc;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            border: 1px solid #999;
-            cursor: pointer;
-        }
-
-        .shared-content-group .selected {
-            background-color: #007bff;
-            color: white;
-        }
-
-        #copyMessage {
-            text-align: center;
-            color: green;
-            font-weight: bold;
-            margin-top: 10px;
-            display: none;
-        }
-
-        #copyButton {
-            background-color: #007bff;
-            color: white;
+        label {
             display: block;
-            margin: 20px auto;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gray-dark);
         }
 
-        #formContainer {
-            display: none;
-            background: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
         }
 
-        .checkbox-group button {
-            background-color: #f0f0f0;
-            color: #333;
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .readonly-input {
+            background-color: var(--light);
+            cursor: default;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background-color: var(--light);
+            border: 1px solid var(--gray-light);
+            color: var(--gray-dark);
             padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 20px;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
+            transition: var(--transition);
         }
 
-        .checkbox-group button:hover {
-            background-color: #e0e0e0;
+        .tag:hover {
+            background-color: #e9ecef;
         }
 
-        .checkbox-group button.selected {
-            background-color: #007bff;
+        .tag.selected {
+            background-color: var(--primary);
             color: white;
-            font-weight: bold;
-            border: 1px solid #0056b3;
+            border-color: var(--primary);
         }
 
-        .crosssell-check-button {
-            background-color: #f0f0f0;
-            color: #333;
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .tag.selected:hover {
+            background-color: var(--primary-light);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin: 30px 0 15px;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .section-title::before {
+            margin-right: 15px;
+        }
+
+        .section-title::after {
+            margin-left: 15px;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .crosssell-group {
+            margin-bottom: 20px;
+        }
+
+        .crosssell-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .crosssell-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .crosssell-option {
+            background-color: var(--light);
+            border: 1px solid var(--gray-light);
+            color: var(--gray-dark);
+            padding: 6px 10px;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            margin: 2px;
+            transition: var(--transition);
         }
 
-        .crosssell-check-button:hover {
-            background-color: #e0e0e0;
+        .crosssell-option:hover {
+            background-color: #e9ecef;
         }
 
-        .crosssell-check-button.selected {
-            background-color: #007bff;
+        .crosssell-option.selected {
+            background-color: var(--primary);
             color: white;
-            font-weight: bold;
-            border: 1px solid #0056b3;
+            border-color: var(--primary);
         }
 
-        /* サジェスト関連のスタイル */
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-copy {
+            margin: 30px auto;
+            display: block;
+            min-width: 200px;
+        }
+
+        .copy-message {
+            text-align: center;
+            color: var(--success);
+            font-weight: bold;
+            margin-top: 15px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .copy-message.visible {
+            opacity: 1;
+        }
+
         .suggestion-container {
             position: relative;
         }
@@ -198,87 +345,159 @@
             max-height: 200px;
             overflow-y: auto;
             background: white;
-            border: 1px solid #ccc;
-            border-radius: 0 0 5px 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-light);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--box-shadow);
             z-index: 1000;
             display: none;
         }
 
         .suggestion-item {
-            padding: 8px 12px;
+            padding: 10px 15px;
             cursor: pointer;
-            border-bottom: 1px solid #eee;
+            transition: var(--transition);
         }
 
-        .suggestion-item:last-child {
-            border-bottom: none;
+        .suggestion-item:not(:last-child) {
+            border-bottom: 1px solid var(--gray-light);
         }
 
         .suggestion-item:hover {
-            background-color: #f0f0f0;
+            background-color: var(--light);
+        }
+
+        @media (max-width: 768px) {
+            .checkbox-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        /* スタイリッシュなスクロールバーのカスタマイズ */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-light);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray);
+        }
+
+        /* アニメーション関連 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container {
+            animation: fadeIn 0.3s ease-out;
         }
     </style>
 </head>
 
 <body>
-    <h2>サポートMTGツール</h2>
-    <div class="button-group">
-        <button class="line" onclick="toggleForm('LINE')">LINE</button>
-        <button class="meo" onclick="toggleForm('MEO')">MEO</button>
-    </div>
+    <div class="container">
+        <header>
+            <h1>サポートMTGツール</h1>
+        </header>
 
-    <div id="formContainer">
-        <label>店舗名：</label>
-        <div class="suggestion-container">
-            <input type="text" id="storeName" autocomplete="off">
-            <div id="suggestions" class="suggestions"></div>
+        <div class="tabs">
+            <button class="tab line" onclick="toggleForm('LINE')">
+                <i class="fab fa-line"></i>LINE
+            </button>
+            <button class="tab meo" onclick="toggleForm('MEO')">
+                <i class="fas fa-store"></i>MEO
+            </button>
         </div>
 
-        <label>人柄：</label>
-        <input type="text" id="personality" readonly>
-        <div class="personality-group" id="personalityButtons"></div>
+        <div id="formContainer" class="form-container">
+            <div class="form-group">
+                <label for="storeName">店舗名</label>
+                <div class="suggestion-container">
+                    <input type="text" id="storeName" autocomplete="off" placeholder="店舗名を入力してください">
+                    <div id="suggestions" class="suggestions"></div>
+                </div>
+            </div>
 
-        <label>備考：</label>
-        <textarea id="notes"></textarea>
+            <div class="form-group">
+                <label for="personality">人柄</label>
+                <input type="text" id="personality" class="readonly-input" readonly>
+                <div class="tag-container" id="personalityButtons"></div>
+            </div>
 
-        <h3>◆修正・変更・追加設定◆</h3>
-        <textarea id="changes"></textarea>
+            <div class="form-group">
+                <label for="notes">備考</label>
+                <textarea id="notes" placeholder="備考を入力してください"></textarea>
+            </div>
 
-        <h3 id="contentTitle">◆MTG内容◆</h3>
-        <textarea id="mtgContent"></textarea>
+            <h2 class="section-title">修正・変更・追加設定</h2>
+            <div class="form-group">
+                <textarea id="changes" placeholder="修正・変更・追加設定を入力してください"></textarea>
+            </div>
 
-        <div id="meoMtgField" style="display: none;">
-            <h3>◆顧客共有内容◆</h3>
-            <input type="text" id="sharedContent" readonly>
-            <div class="shared-content-group" id="sharedContentButtons"></div>
+            <h2 class="section-title" id="contentTitle">MTG内容</h2>
+            <div class="form-group">
+                <textarea id="mtgContent" placeholder="MTGの内容を入力してください"></textarea>
+            </div>
+
+            <div id="meoMtgField" style="display: none;">
+                <h2 class="section-title">顧客共有内容</h2>
+                <div class="form-group">
+                    <input type="text" id="sharedContent" class="readonly-input" readonly>
+                    <div class="tag-container" id="sharedContentButtons"></div>
+                </div>
+            </div>
+
+            <h2 class="section-title">次回予定</h2>
+            <div class="form-group">
+                <textarea id="nextPlan" placeholder="次回の予定を入力してください"></textarea>
+            </div>
+
+            <div id="meoFields" style="display: none;">
+                <h2 class="section-title">現状ステータス</h2>
+                <div class="form-group">
+                    <label for="reviewCount">クチコミ数</label>
+                    <input type="text" id="reviewCount" placeholder="例: 25件">
+                </div>
+                <div class="form-group">
+                    <label for="surveyCount">アンケート数</label>
+                    <input type="text" id="surveyCount" placeholder="例: 10件">
+                </div>
+                <div class="form-group">
+                    <label for="searchRank">検索順位</label>
+                    <input type="text" id="searchRank" placeholder="例: 3位">
+                </div>
+            </div>
+
+            <h2 class="section-title">オンボ進捗</h2>
+            <div class="form-group">
+                <div class="checkbox-grid" id="onboardingOptions"></div>
+            </div>
+
+            <h2 class="section-title">クロスセル内容</h2>
+            <div class="form-group" id="crosssellCheckGroup"></div>
+
+            <h2 class="section-title">クロスセル備考</h2>
+            <div class="form-group">
+                <textarea id="crosssellNotes" placeholder="クロスセルに関する備考を入力してください"></textarea>
+            </div>
+
+            <input type="hidden" id="crosssellCheckSelected">
+
+            <button id="copyButton" class="btn btn-copy" onclick="copyToClipboard()">
+                <i class="fas fa-clipboard"></i> コピーする
+            </button>
+            <div id="copyMessage" class="copy-message">コピーしました！</div>
         </div>
-
-        <h3>◆次回予定◆</h3>
-        <textarea id="nextPlan"></textarea>
-
-        <div id="meoFields" style="display: none;">
-            <h3>◆現状ステータス◆</h3>
-            <label>クチコミ数：</label>
-            <input type="text" id="reviewCount">
-            <label>アンケート数：</label>
-            <input type="text" id="surveyCount">
-            <label>検索順位：</label>
-            <input type="text" id="searchRank">
-        </div>
-
-        <h3>◆オンボ進捗◆</h3>
-        <div class="checkbox-group" id="onboardingOptions"></div>
-
-        <h3>◆クロスセル内容◆</h3>
-        <div id="crosssellCheckGroup" class="checkbox-group"></div>
-        <input type="hidden" id="crosssellCheckSelected">
-
-        <h3>◆クロスセル備考◆</h3>
-        <textarea id="crosssellNotes"></textarea>
-
-        <button id="copyButton" onclick="copyToClipboard()">コピー</button>
-        <div id="copyMessage">コピーしました！</div>
     </div>
 
     <script>
@@ -319,23 +538,47 @@
                 document.querySelector(".line").classList.add("active");
                 document.getElementById("meoFields").style.display = "none";
                 document.getElementById("meoMtgField").style.display = "none";
-                document.getElementById("contentTitle").textContent = "◆MTG内容◆";
+                document.getElementById("contentTitle").textContent = "MTG内容";
                 document.getElementById("onboardingOptions").innerHTML = `
-                    <label><input type="checkbox" id="addFriend"> 友達追加</label>
-                    <label><input type="checkbox" id="greetMessage"> 挨拶メッセージ</label>
-                    <label><input type="checkbox" id="broadcast"> 一斉配信</label>
-                    <label><input type="checkbox" id="coupon"> クーポン作成</label>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="addFriend">
+                        <label for="addFriend">友達追加</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="greetMessage">
+                        <label for="greetMessage">挨拶メッセージ</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="broadcast">
+                        <label for="broadcast">一斉配信</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="coupon">
+                        <label for="coupon">クーポン作成</label>
+                    </div>
                 `;
             } else if (type === "MEO") {
                 document.querySelector(".meo").classList.add("active");
                 document.getElementById("meoFields").style.display = "block";
                 document.getElementById("meoMtgField").style.display = "block";
-                document.getElementById("contentTitle").textContent = "◆MTG内容◆";
+                document.getElementById("contentTitle").textContent = "MTG内容";
                 document.getElementById("onboardingOptions").innerHTML = `
-                    <label><input type="checkbox" id="latestPost"> 最新の投稿</label>
-                    <label><input type="checkbox" id="logoCover"> ロゴ・カバー</label>
-                    <label><input type="checkbox" id="keywordPost"> キーワード投稿</label>
-                    <label><input type="checkbox" id="survey"> アンケート</label>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="latestPost">
+                        <label for="latestPost">最新の投稿</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="logoCover">
+                        <label for="logoCover">ロゴ・カバー</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="keywordPost">
+                        <label for="keywordPost">キーワード投稿</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="survey">
+                        <label for="survey">アンケート</label>
+                    </div>
                 `;
             }
             selectedType = type;
@@ -354,6 +597,7 @@
             personalityOptions.forEach(option => {
                 const button = document.createElement("button");
                 button.textContent = option;
+                button.className = "tag";
                 button.onclick = function () {
                     if (selectedPersonalities.includes(option)) {
                         selectedPersonalities = selectedPersonalities.filter(p => p !== option);
@@ -381,7 +625,7 @@
             sharedContentOptions.forEach(option => {
                 const button = document.createElement("button");
                 button.textContent = option;
-                button.classList.add("shared-content-button");
+                button.className = "tag";
 
                 button.onclick = function () {
                     if (selectedSharedContents.includes(option)) {
@@ -410,8 +654,14 @@
 
             crosssellItems.forEach(item => {
                 const itemGroup = document.createElement("div");
-                itemGroup.innerHTML = `<strong>${item}</strong>`;
-                itemGroup.style.marginBottom = "10px";
+                itemGroup.className = "crosssell-group";
+                
+                const title = document.createElement("div");
+                title.className = "crosssell-title";
+                title.innerHTML = `<i class="fas fa-tag"></i> ${item}`;
+                
+                const options = document.createElement("div");
+                options.className = "crosssell-options";
 
                 // 初期状態の設定（既に設定がなければ空文字列に）
                 if (selectedCrosssellChecks[item] === undefined) {
@@ -421,7 +671,7 @@
                 checkStatuses.forEach(status => {
                     const button = document.createElement("button");
                     button.textContent = status;
-                    button.classList.add("crosssell-check-button");
+                    button.className = "crosssell-option";
                     
                     // 保存データを適用して選択状態を復元
                     if (selectedCrosssellChecks[item] === status) {
@@ -435,7 +685,7 @@
                             button.classList.remove("selected");
                         } else {
                             // そのアイテムの選択状態をリセット
-                            Array.from(itemGroup.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                            Array.from(options.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
 
                             // 新しい選択を適用
                             selectedCrosssellChecks[item] = status;
@@ -450,8 +700,11 @@
                         }
                     };
 
-                    itemGroup.appendChild(button);
+                    options.appendChild(button);
                 });
+                
+                itemGroup.appendChild(title);
+                itemGroup.appendChild(options);
                 container.appendChild(itemGroup);
             });
             
