@@ -184,6 +184,40 @@
             font-weight: bold;
             border: 1px solid #0056b3;
         }
+
+        /* サジェスト関連のスタイル */
+        .suggestion-container {
+            position: relative;
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 
@@ -196,7 +230,10 @@
 
     <div id="formContainer">
         <label>店舗名：</label>
-        <input type="text" id="storeName">
+        <div class="suggestion-container">
+            <input type="text" id="storeName" autocomplete="off">
+            <div id="suggestions" class="suggestions"></div>
+        </div>
 
         <label>人柄：</label>
         <input type="text" id="personality" readonly>
@@ -270,6 +307,7 @@
             setupSharedContentButtons();
             setupCrosssellCheckButtons();
             setupStoreDataHandling();
+            setupStoreSuggestions();
         });
 
         function toggleForm(type) {
@@ -430,6 +468,77 @@
             document.getElementById("crosssellCheckSelected").value = crosssellCheckText;
         }
 
+        // サジェスト機能の設定
+        function setupStoreSuggestions() {
+            const storeInput = document.getElementById("storeName");
+            const suggestionsDiv = document.getElementById("suggestions");
+            
+            // 入力フィールドにフォーカスがあたったときに処理
+            storeInput.addEventListener("focus", function() {
+                updateSuggestions(this.value);
+            });
+            
+            // 入力内容が変わるたびに処理
+            storeInput.addEventListener("input", function() {
+                updateSuggestions(this.value);
+            });
+            
+            // 入力フィールド以外をクリックしたときにサジェストを非表示
+            document.addEventListener("click", function(e) {
+                if (e.target !== storeInput && e.target !== suggestionsDiv) {
+                    suggestionsDiv.style.display = "none";
+                }
+            });
+
+            // サジェスト項目をクリックした時の処理
+            suggestionsDiv.addEventListener("click", function(e) {
+                if (e.target.classList.contains("suggestion-item")) {
+                    storeInput.value = e.target.textContent;
+                    suggestionsDiv.style.display = "none";
+                    restoreData(storeInput.value.trim());
+                }
+            });
+        }
+
+        // サジェスト一覧を更新する関数
+        function updateSuggestions(query) {
+            const suggestionsDiv = document.getElementById("suggestions");
+            const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+            const storeNames = Object.keys(savedData);
+            
+            if (storeNames.length === 0) {
+                suggestionsDiv.style.display = "none";
+                return;
+            }
+            
+            // 検索クエリに一致する店舗を検索
+            let matchedStores = [];
+            if (query.trim() === "") {
+                // 空の場合は全ての保存店舗を表示（最大10件）
+                matchedStores = storeNames.slice(0, 10);
+            } else {
+                // クエリに部分一致する店舗を検索
+                matchedStores = storeNames.filter(name => 
+                    name.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 10); // 最大10件まで
+            }
+            
+            // サジェスト項目を生成
+            if (matchedStores.length > 0) {
+                suggestionsDiv.innerHTML = "";
+                matchedStores.forEach(store => {
+                    const item = document.createElement("div");
+                    item.classList.add("suggestion-item");
+                    item.textContent = store;
+                    suggestionsDiv.appendChild(item);
+                });
+                
+                suggestionsDiv.style.display = "block";
+            } else {
+                suggestionsDiv.style.display = "none";
+            }
+        }
+
         function setupStoreDataHandling() {
             const storeNameInput = document.getElementById("storeName");
             const inputFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
@@ -438,9 +547,25 @@
             storeNameInput.addEventListener("input", function () {
                 const storeName = this.value.trim();
                 if (storeName) {
-                    restoreData(storeName);
+                    // サジェスト表示はupdateSuggestions関数で処理
                 } else {
                     resetFields();
+                }
+            });
+            
+            // Enter キーが押されたとき
+            storeNameInput.addEventListener("keydown", function(e) {
+                if (e.key === "Enter") {
+                    const suggestionsDiv = document.getElementById("suggestions");
+                    const firstSuggestion = suggestionsDiv.querySelector(".suggestion-item");
+                    
+                    if (firstSuggestion && suggestionsDiv.style.display !== "none") {
+                        // 最初のサジェスト項目を選択
+                        this.value = firstSuggestion.textContent;
+                        suggestionsDiv.style.display = "none";
+                        restoreData(this.value.trim());
+                        e.preventDefault();
+                    }
                 }
             });
 
