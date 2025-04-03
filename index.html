@@ -1062,8 +1062,9 @@ ${crosssellNotes}`;
 
             if (outputText) {
                 navigator.clipboard.writeText(outputText).then(() => {
-                    document.getElementById("copyMessage").style.display = "block";
-                    setTimeout(() => document.getElementById("copyMessage").style.display = "none", 2000);
+                    const copyMessage = document.getElementById("copyMessage");
+                    copyMessage.classList.add("visible");
+                    setTimeout(() => copyMessage.classList.remove("visible"), 2000);
                 }).catch(err => {
                     console.error("コピーに失敗しました: ", err);
                 });
