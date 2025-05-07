@@ -801,6 +801,13 @@
                 const storeName = this.value.trim();
                 if (storeName) {
                     // サジェスト表示はupdateSuggestions関数で処理
+                    // デバッグ追加：保存データを取得して内容を確認
+                    const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+                    if (savedData[storeName]) {
+                        restoreData(storeName);
+                    } else {
+                        resetFields();
+                    }
                 } else {
                     resetFields();
                 }
