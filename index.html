@@ -533,7 +533,7 @@
             document.getElementById("formContainer").style.display = "block";
             document.querySelector(".line").classList.remove("active");
             document.querySelector(".meo").classList.remove("active");
-
+        
             if (type === "LINE") {
                 document.querySelector(".line").classList.add("active");
                 document.getElementById("meoFields").style.display = "none";
@@ -586,7 +586,7 @@
             // 店舗名が入力されている場合、データを復元
             const storeName = document.getElementById("storeName").value.trim();
             if (storeName) {
-                restoreData(storeName);
+                restoreData(storeName, type); // タイプを明示的に渡す
             }
         }
 
@@ -853,98 +853,171 @@
             });
         }
 
-        function restoreData(storeName) {
-            const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-
-            if (savedData[storeName]) {
-                const data = savedData[storeName];
-                
-                // 入力フィールドの復元
-                const inputFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
-                inputFields.forEach(field => {
-                    const element = document.getElementById(field);
-                    if (element && data[field] !== undefined) {
-                        element.value = data[field];
+        function restoreData(storeName, forceType = null) {
+            try {
+                const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+        
+                if (savedData[storeName]) {
+                    const data = savedData[storeName];
+                    
+                    // タイプを判断
+                    const currentType = forceType || selectedType || "LINE"; // デフォルトはLINE
+                    
+                    // 入力フィールドの復元（共通項目）
+                    const commonFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes"];
+                    commonFields.forEach(field => {
+                        const element = document.getElementById(field);
+                        if (element && data[field] !== undefined) {
+                            element.value = data[field];
+                        }
+                    });
+        
+                    // タイプ別の項目復元
+                    if (currentType === "MEO") {
+                        // MEO固有フィールドの復元
+                        const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
+                        meoFields.forEach(field => {
+                            const element = document.getElementById(field);
+                            if (element && data[field] !== undefined) {
+                                element.value = data[field];
+                            }
+                        });
                     }
-                });
-
-                // 人柄ボタンの復元
-                if (data.selectedPersonalities) {
-                    selectedPersonalities = data.selectedPersonalities;
-                    const buttons = document.querySelectorAll("#personalityButtons button");
-                    buttons.forEach(button => {
-                        button.classList.remove("selected");
-                        if (selectedPersonalities.includes(button.textContent)) {
-                            button.classList.add("selected");
-                        }
-                    });
-                    document.getElementById("personality").value = selectedPersonalities.join("、");
+        
+                    // 人柄ボタンの復元
+                    if (data.selectedPersonalities) {
+                        selectedPersonalities = Array.isArray(data.selectedPersonalities) 
+                            ? data.selectedPersonalities 
+                            : [];
+                            
+                        const buttons = document.querySelectorAll("#personalityButtons button");
+                        buttons.forEach(button => {
+                            button.classList.remove("selected");
+                            if (selectedPersonalities.includes(button.textContent)) {
+                                button.classList.add("selected");
+                            }
+                        });
+                        document.getElementById("personality").value = selectedPersonalities.join("、");
+                    } else {
+                        // 初期化
+                        selectedPersonalities = [];
+                        document.getElementById("personality").value = "";
+                        document.querySelectorAll("#personalityButtons button").forEach(btn => {
+                            btn.classList.remove("selected");
+                        });
+                    }
+        
+                    // 共有内容ボタンの復元（MEOのみ）
+                    if (currentType === "MEO" && data.selectedSharedContents) {
+                        selectedSharedContents = Array.isArray(data.selectedSharedContents) 
+                            ? data.selectedSharedContents 
+                            : [];
+                            
+                        const buttons = document.querySelectorAll("#sharedContentButtons button");
+                        buttons.forEach(button => {
+                            button.classList.remove("selected");
+                            if (selectedSharedContents.includes(button.textContent)) {
+                                button.classList.add("selected");
+                            }
+                        });
+                        document.getElementById("sharedContent").value = selectedSharedContents.join("、");
+                    } else if (currentType === "MEO") {
+                        // MEOモードで初期化
+                        selectedSharedContents = [];
+                        document.getElementById("sharedContent").value = "";
+                        document.querySelectorAll("#sharedContentButtons button").forEach(btn => {
+                            btn.classList.remove("selected");
+                        });
+                    }
+        
+                    // オンボ進捗の復元
+                    if (data.onboarding && data.onboarding[currentType]) {
+                        const checkboxes = document.querySelectorAll("#onboardingOptions input[type='checkbox']");
+                        checkboxes.forEach(checkbox => {
+                            if (data.onboarding[currentType].hasOwnProperty(checkbox.id)) {
+                                checkbox.checked = data.onboarding[currentType][checkbox.id];
+                            } else {
+                                checkbox.checked = false; // デフォルトはオフ
+                            }
+                        });
+                    } else {
+                        // チェックボックスリセット
+                        document.querySelectorAll("#onboardingOptions input[type='checkbox']").forEach(
+                            checkbox => checkbox.checked = false
+                        );
+                    }
+        
+                    // クロスセルチェックの復元
+                    if (data.crosssellSelections) {
+                        selectedCrosssellChecks = {...data.crosssellSelections};
+                        setupCrosssellCheckButtons(); // 選択状態を反映
+                    } else {
+                        // クロスセル初期化
+                        selectedCrosssellChecks = {};
+                        crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
+                        setupCrosssellCheckButtons();
+                    }
+                } else {
+                    resetFields();
                 }
-
-                // 共有内容ボタンの復元
-                if (data.selectedSharedContents) {
-                    selectedSharedContents = data.selectedSharedContents;
-                    const buttons = document.querySelectorAll("#sharedContentButtons button");
-                    buttons.forEach(button => {
-                        button.classList.remove("selected");
-                        if (selectedSharedContents.includes(button.textContent)) {
-                            button.classList.add("selected");
-                        }
-                    });
-                    document.getElementById("sharedContent").value = selectedSharedContents.join("、");
-                }
-
-                // オンボ進捗の復元
-                if (data.onboarding) {
-                    const checkboxes = document.querySelectorAll("#onboardingOptions input[type='checkbox']");
-                    checkboxes.forEach(checkbox => {
-                        if (data.onboarding.hasOwnProperty(checkbox.id)) {
-                            checkbox.checked = data.onboarding[checkbox.id];
-                        }
-                    });
-                }
-
-                // クロスセルチェックの復元
-                if (data.crosssellSelections) {
-                    selectedCrosssellChecks = data.crosssellSelections;
-                    setupCrosssellCheckButtons(); // 選択状態を反映
-                }
-            } else {
-                resetFields();
+            } catch (error) {
+                console.error("データ復元中にエラーが発生しました:", error);
+                resetFields(); // エラー時はリセット
             }
         }
 
         function saveData(storeName) {
-            let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-            if (!savedData[storeName]) savedData[storeName] = {};
-
-            // 入力フィールドの保存
-            const inputFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
-            inputFields.forEach(field => {
-                const element = document.getElementById(field);
-                if (element) {
-                    savedData[storeName][field] = element.value;
+            try {
+                let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+                if (!savedData[storeName]) savedData[storeName] = {};
+        
+                // 入力フィールドの保存
+                const inputFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes"];
+                inputFields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        savedData[storeName][field] = element.value;
+                    }
+                });
+        
+                // タイプ別の項目保存
+                if (selectedType === "MEO") {
+                    const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
+                    meoFields.forEach(field => {
+                        const element = document.getElementById(field);
+                        if (element) {
+                            savedData[storeName][field] = element.value;
+                        }
+                    });
                 }
-            });
-
-            // 人柄選択の保存
-            savedData[storeName].selectedPersonalities = selectedPersonalities;
-
-            // 共有内容選択の保存
-            savedData[storeName].selectedSharedContents = selectedSharedContents;
-
-            // オンボ進捗の保存
-            if (!savedData[storeName].onboarding) savedData[storeName].onboarding = {};
-            const checkboxes = document.querySelectorAll("#onboardingOptions input[type='checkbox']");
-            checkboxes.forEach(checkbox => {
-                savedData[storeName].onboarding[checkbox.id] = checkbox.checked;
-            });
-
-            // クロスセルチェックボタンの保存
-            savedData[storeName].crosssellSelections = selectedCrosssellChecks;
-
-            // ローカルストレージに保存
-            localStorage.setItem("storeData", JSON.stringify(savedData));
+        
+                // 人柄選択の保存
+                savedData[storeName].selectedPersonalities = [...selectedPersonalities];
+        
+                // 共有内容選択の保存（MEOのみ）
+                if (selectedType === "MEO") {
+                    savedData[storeName].selectedSharedContents = [...selectedSharedContents];
+                }
+        
+                // オンボ進捗の保存 (タイプ別に保存)
+                if (!savedData[storeName].onboarding) savedData[storeName].onboarding = {};
+                if (!savedData[storeName].onboarding[selectedType]) savedData[storeName].onboarding[selectedType] = {};
+                
+                const checkboxes = document.querySelectorAll("#onboardingOptions input[type='checkbox']");
+                checkboxes.forEach(checkbox => {
+                    savedData[storeName].onboarding[selectedType][checkbox.id] = checkbox.checked;
+                });
+        
+                // クロスセルチェックボタンの保存
+                savedData[storeName].crosssellSelections = {...selectedCrosssellChecks};
+        
+                // ローカルストレージに保存
+                localStorage.setItem("storeData", JSON.stringify(savedData));
+                return true;
+            } catch (error) {
+                console.error("データ保存中にエラーが発生しました:", error);
+                return false;
+            }
         }
 
         function resetFields() {
