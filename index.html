@@ -860,23 +860,6 @@
                         });
                     }
         
-                    // オンボ進捗の復元
-                    if (data.onboarding && data.onboarding[currentType]) {
-                        const checkboxes = document.querySelectorAll("#onboardingOptions input[type='checkbox']");
-                        checkboxes.forEach(checkbox => {
-                            if (data.onboarding[currentType].hasOwnProperty(checkbox.id)) {
-                                checkbox.checked = data.onboarding[currentType][checkbox.id];
-                            } else {
-                                checkbox.checked = false; // デフォルトはオフ
-                            }
-                        });
-                    } else {
-                        // チェックボックスリセット
-                        document.querySelectorAll("#onboardingOptions input[type='checkbox']").forEach(
-                            checkbox => checkbox.checked = false
-                        );
-                    }
-        
                     // クロスセルチェックの復元
                     if (data.crosssellSelections) {
                         selectedCrosssellChecks = {...data.crosssellSelections};
@@ -928,16 +911,7 @@
                 if (selectedType === "MEO") {
                     savedData[storeName].selectedSharedContents = [...selectedSharedContents];
                 }
-        
-                // オンボ進捗の保存 (タイプ別に保存)
-                if (!savedData[storeName].onboarding) savedData[storeName].onboarding = {};
-                if (!savedData[storeName].onboarding[selectedType]) savedData[storeName].onboarding[selectedType] = {};
                 
-                const checkboxes = document.querySelectorAll("#onboardingOptions input[type='checkbox']");
-                checkboxes.forEach(checkbox => {
-                    savedData[storeName].onboarding[selectedType][checkbox.id] = checkbox.checked;
-                });
-        
                 // クロスセルチェックボタンの保存
                 savedData[storeName].crosssellSelections = {...selectedCrosssellChecks};
         
@@ -970,37 +944,29 @@
             const sharedContentButtons = document.querySelectorAll("#sharedContentButtons button");
             sharedContentButtons.forEach(button => button.classList.remove("selected"));
 
-            // オンボ進捗のリセット
-            const checkboxes = document.querySelectorAll("#onboardingOptions input[type='checkbox']");
-            checkboxes.forEach(checkbox => checkbox.checked = false);
-
             // クロスセルチェックのリセット
             selectedCrosssellChecks = {};
             crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
             setupCrosssellCheckButtons();
         }
 
-        function copyToClipboard() {
-            updateCrosssellCheckHiddenField(); // コピー直前に最新データを反映
+        // 既存のscript内のcopyToClipboard関数を修正する部分
+function copyToClipboard() {
+    updateCrosssellCheckHiddenField(); // コピー直前に最新データを反映
 
-            const storeName = document.getElementById("storeName").value;
-            const personality = document.getElementById("personality").value;
-            const notes = document.getElementById("notes").value;
-            const changes = document.getElementById("changes").value;
-            const mtgContent = document.getElementById("mtgContent").value;
-            const nextPlan = document.getElementById("nextPlan").value;
-            const crosssellNotes = document.getElementById("crosssellNotes").value;
-            const checkSelected = document.getElementById("crosssellCheckSelected").value;
+    const storeName = document.getElementById("storeName").value;
+    const personality = document.getElementById("personality").value;
+    const notes = document.getElementById("notes").value;
+    const changes = document.getElementById("changes").value;
+    const mtgContent = document.getElementById("mtgContent").value;
+    const nextPlan = document.getElementById("nextPlan").value;
+    const crosssellNotes = document.getElementById("crosssellNotes").value;
+    const checkSelected = document.getElementById("crosssellCheckSelected").value;
 
-            let outputText = "";
+    let outputText = "";
 
-            if (selectedType === "LINE") {
-                const addFriend = document.getElementById("addFriend").checked ? "〇" : "×";
-                const greetMessage = document.getElementById("greetMessage").checked ? "〇" : "×";
-                const broadcast = document.getElementById("broadcast").checked ? "〇" : "×";
-                const coupon = document.getElementById("coupon").checked ? "〇" : "×";
-
-                outputText = `L【サポートMTG】
+    if (selectedType === "LINE") {
+        outputText = `L【サポートMTG】
 店舗名：${storeName}
 人柄：${personality}
 備考：${notes}
@@ -1014,28 +980,18 @@ ${mtgContent}
 ◆次回予定◆
 ${nextPlan}
 
-◆オンボ進捗◆
-・友達追加：${addFriend}
-・挨拶メッセージ：${greetMessage}
-・一斉配信：${broadcast}
-・クーポン作成：${coupon}
-
 ◆クロスセル内容◆
 ${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
-            } else if (selectedType === "MEO") {
-                const latestPost = document.getElementById("latestPost").checked ? "〇" : "×";
-                const logoCover = document.getElementById("logoCover").checked ? "〇" : "×";
-                const keywordPost = document.getElementById("keywordPost").checked ? "〇" : "×";
-                const survey = document.getElementById("survey").checked ? "〇" : "×";
-                const reviewCount = document.getElementById("reviewCount").value;
-                const sharedContent = document.getElementById("sharedContent").value;
-                const surveyCount = document.getElementById("surveyCount").value;
-                const searchRank = document.getElementById("searchRank").value;
+    } else if (selectedType === "MEO") {
+        const reviewCount = document.getElementById("reviewCount").value;
+        const sharedContent = document.getElementById("sharedContent").value;
+        const surveyCount = document.getElementById("surveyCount").value;
+        const searchRank = document.getElementById("searchRank").value;
 
-                outputText = `M【サポートMTG】
+        outputText = `M【サポートMTG】
 店舗名：${storeName}
 人柄：${personality}
 備考：${notes}
@@ -1057,29 +1013,49 @@ ${nextPlan}
 ・アンケート数：${surveyCount}
 ・検索順位：${searchRank}
 
-◆オンボ進捗◆
-・最新の投稿：${latestPost}
-・ロゴ・カバー：${logoCover}
-・キーワード投稿：${keywordPost}
-・アンケート：${survey}
-
 ◆クロスセル内容◆
 ${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
-            }
+    }
 
-            if (outputText) {
-                navigator.clipboard.writeText(outputText).then(() => {
-                    const copyMessage = document.getElementById("copyMessage");
-                    copyMessage.classList.add("visible");
-                    setTimeout(() => copyMessage.classList.remove("visible"), 2000);
-                }).catch(err => {
-                    console.error("コピーに失敗しました: ", err);
-                });
-            }
-        }
+    if (outputText) {
+        navigator.clipboard.writeText(outputText).then(() => {
+            const copyMessage = document.getElementById("copyMessage");
+            copyMessage.classList.add("visible");
+            setTimeout(() => copyMessage.classList.remove("visible"), 2000);
+        }).catch(err => {
+            console.error("コピーに失敗しました: ", err);
+        });
+    }
+}
+
+// toggleForm関数も修正する必要があります
+function toggleForm(type) {
+    document.getElementById("formContainer").style.display = "block";
+    document.querySelector(".line").classList.remove("active");
+    document.querySelector(".meo").classList.remove("active");
+
+    if (type === "LINE") {
+        document.querySelector(".line").classList.add("active");
+        document.getElementById("meoFields").style.display = "none";
+        document.getElementById("meoMtgField").style.display = "none";
+        document.getElementById("contentTitle").textContent = "MTG内容";
+    } else if (type === "MEO") {
+        document.querySelector(".meo").classList.add("active");
+        document.getElementById("meoFields").style.display = "block";
+        document.getElementById("meoMtgField").style.display = "block";
+        document.getElementById("contentTitle").textContent = "MTG内容";
+    }
+    selectedType = type;
+    
+    // 店舗名が入力されている場合、データを復元
+    const storeName = document.getElementById("storeName").value.trim();
+    if (storeName) {
+        restoreData(storeName, type); // タイプを明示的に渡す
+    }
+}
     </script>
 </body>
 
