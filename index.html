@@ -238,25 +238,6 @@
             margin-left: 15px;
         }
 
-        .checkbox-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            margin-right: 8px;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-        }
-
         .crosssell-group {
             margin-bottom: 20px;
         }
@@ -478,11 +459,6 @@
                 </div>
             </div>
 
-            <h2 class="section-title">オンボ進捗</h2>
-            <div class="form-group">
-                <div class="checkbox-grid" id="onboardingOptions"></div>
-            </div>
-
             <h2 class="section-title">クロスセル内容</h2>
             <div class="form-group" id="crosssellCheckGroup"></div>
 
@@ -539,47 +515,11 @@
                 document.getElementById("meoFields").style.display = "none";
                 document.getElementById("meoMtgField").style.display = "none";
                 document.getElementById("contentTitle").textContent = "MTG内容";
-                document.getElementById("onboardingOptions").innerHTML = `
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="addFriend">
-                        <label for="addFriend">友達追加</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="greetMessage">
-                        <label for="greetMessage">挨拶メッセージ</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="broadcast">
-                        <label for="broadcast">一斉配信</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="coupon">
-                        <label for="coupon">クーポン作成</label>
-                    </div>
-                `;
             } else if (type === "MEO") {
                 document.querySelector(".meo").classList.add("active");
                 document.getElementById("meoFields").style.display = "block";
                 document.getElementById("meoMtgField").style.display = "block";
                 document.getElementById("contentTitle").textContent = "MTG内容";
-                document.getElementById("onboardingOptions").innerHTML = `
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="latestPost">
-                        <label for="latestPost">最新の投稿</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="logoCover">
-                        <label for="logoCover">ロゴ・カバー</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="keywordPost">
-                        <label for="keywordPost">キーワード投稿</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="survey">
-                        <label for="survey">アンケート</label>
-                    </div>
-                `;
             }
             selectedType = type;
             
@@ -825,16 +765,6 @@
                         suggestionsDiv.style.display = "none";
                         restoreData(this.value.trim());
                         e.preventDefault();
-                    }
-                }
-            });
-
-            // チェックボックスの変更を検出し、保存
-            document.addEventListener("change", function (event) {
-                if (event.target.matches("#onboardingOptions input[type='checkbox']")) {
-                    const storeName = storeNameInput.value.trim();
-                    if (storeName) {
-                        saveData(storeName);
                     }
                 }
             });
