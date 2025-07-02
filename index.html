@@ -774,7 +774,7 @@
 
         function setupStoreDataHandling() {
             const storeNameInput = document.getElementById("storeName");
-            const inputFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
+            const inputFields = ["personality", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
 
             // 店舗名を入力すると過去データを復元
             storeNameInput.addEventListener("input", function () {
@@ -834,7 +834,7 @@
                     const currentType = forceType || selectedType || "LINE"; // デフォルトはLINE
                     
                     // 入力フィールドの復元（共通項目）
-                    const commonFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes"];
+                    const commonFields = ["personality", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes"];
                     commonFields.forEach(field => {
                         const element = document.getElementById(field);
                         if (element && data[field] !== undefined) {
