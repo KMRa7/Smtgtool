@@ -416,6 +416,12 @@
             </div>
 
             <div class="form-group">
+                <label for="updateReadingStatus">更新ヨミ</label>
+                <input type="text" id="updateReadingStatus" class="readonly-input" readonly>
+                <div class="tag-container" id="updateReadingButtons"></div>
+            </div>
+
+            <div class="form-group">
                 <label for="notes">備考</label>
                 <textarea id="notes" placeholder="備考を入力してください"></textarea>
             </div>
@@ -479,6 +485,7 @@
     <script>
         let selectedType = "";
         const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人", "カタコト"];
+        const updateReadingOptions = ["〇", "×"];
         const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス","フィフティ"];
         const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
         const sharedContentOptions = [
@@ -493,12 +500,14 @@
         ];
         
         let selectedPersonalities = [];
+        let selectedUpdateReading = "";
         let selectedCrosssellChecks = {};
         let selectedSharedContents = [];
 
         // ページ読み込み時の初期化
         document.addEventListener("DOMContentLoaded", function () {
             setupPersonalityButtons();
+            setupUpdateReadingButtons();
             setupSharedContentButtons();
             setupCrosssellCheckButtons();
             setupStoreDataHandling();
@@ -585,6 +594,37 @@
                 };
 
                 sharedContentContainer.appendChild(button);
+            });
+        }
+
+        function setupUpdateReadingButtons() {
+            const updateReadingContainer = document.getElementById("updateReadingButtons");
+            updateReadingContainer.innerHTML = ""; // 初期化
+            
+            updateReadingOptions.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.className = "tag";
+                button.onclick = function () {
+                    // 他のボタンの選択状態をリセット
+                    Array.from(updateReadingContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    
+                    if (selectedUpdateReading === option) {
+                        selectedUpdateReading = "";
+                        button.classList.remove("selected");
+                    } else {
+                        selectedUpdateReading = option;
+                        button.classList.add("selected");
+                    }
+                    document.getElementById("updateReadingStatus").value = selectedUpdateReading;
+                    
+                    // 店舗名が入力されている場合、データを保存
+                    const storeName = document.getElementById("storeName").value.trim();
+                    if (storeName) {
+                        saveData(storeName);
+                    }
+                };
+                updateReadingContainer.appendChild(button);
             });
         }
 
