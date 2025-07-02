@@ -876,6 +876,26 @@
                             btn.classList.remove("selected");
                         });
                     }
+
+                    // 更新ヨミボタンの復元
+                    if (data.selectedUpdateReading) {
+                        selectedUpdateReading = data.selectedUpdateReading;
+                        const buttons = document.querySelectorAll("#updateReadingButtons button");
+                        buttons.forEach(button => {
+                            button.classList.remove("selected");
+                            if (selectedUpdateReading === button.textContent) {
+                                button.classList.add("selected");
+                            }
+                        });
+                        document.getElementById("updateReadingStatus").value = selectedUpdateReading;
+                    } else {
+                        // 初期化
+                        selectedUpdateReading = "";
+                        document.getElementById("updateReadingStatus").value = "";
+                        document.querySelectorAll("#updateReadingButtons button").forEach(btn => {
+                            btn.classList.remove("selected");
+                        });
+                    }
         
                     // 共有内容ボタンの復元（MEOのみ）
                     if (currentType === "MEO" && data.selectedSharedContents) {
@@ -946,6 +966,9 @@
         
                 // 人柄選択の保存
                 savedData[storeName].selectedPersonalities = [...selectedPersonalities];
+
+                // 更新ヨミ選択の保存
+                savedData[storeName].selectedUpdateReading = selectedUpdateReading;
         
                 // 共有内容選択の保存（MEOのみ）
                 if (selectedType === "MEO") {
@@ -966,7 +989,7 @@
 
         function resetFields() {
             // 入力フィールドのリセット
-            const inputFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
+            const inputFields = ["personality", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
             inputFields.forEach(field => {
                 const element = document.getElementById(field);
                 if (element) {
@@ -978,6 +1001,11 @@
             selectedPersonalities = [];
             const personalityButtons = document.querySelectorAll("#personalityButtons button");
             personalityButtons.forEach(button => button.classList.remove("selected"));
+
+            // 更新ヨミボタンのリセット
+            selectedUpdateReading = "";
+            const updateReadingButtons = document.querySelectorAll("#updateReadingButtons button");
+            updateReadingButtons.forEach(button => button.classList.remove("selected"));
 
             // 共有内容ボタンのリセット
             selectedSharedContents = [];
@@ -996,6 +1024,7 @@ function copyToClipboard() {
 
     const storeName = document.getElementById("storeName").value;
     const personality = document.getElementById("personality").value;
+    const updateReading = document.getElementById("updateReadingStatus").value;
     const notes = document.getElementById("notes").value;
     const changes = document.getElementById("changes").value;
     const mtgContent = document.getElementById("mtgContent").value;
@@ -1009,6 +1038,7 @@ function copyToClipboard() {
         outputText = `L【サポートMTG】
 店舗名：${storeName}
 人柄：${personality}
+更新ヨミ：${updateReading}
 備考：${notes}
 
 ◆修正・変更・追加設定◆
@@ -1034,6 +1064,7 @@ ${crosssellNotes}`;
         outputText = `M【サポートMTG】
 店舗名：${storeName}
 人柄：${personality}
+更新ヨミ：${updateReading}
 備考：${notes}
 
 ◆修正・変更・追加設定◆
