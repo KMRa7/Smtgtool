@@ -410,6 +410,17 @@
             </div>
 
             <div class="form-group">
+                <label for="mtgDate">日付</label>
+                <input type="date" id="mtgDate">
+            </div>
+
+            <div class="form-group">
+                <label for="wAcceptance">W受ですか?</label>
+                <input type="text" id="wAcceptance" class="readonly-input" readonly>
+                <div class="tag-container" id="wAcceptanceButtons"></div>
+            </div>
+
+            <div class="form-group">
                 <label for="personality">人柄</label>
                 <input type="text" id="personality" class="readonly-input" readonly>
                 <div class="tag-container" id="personalityButtons"></div>
@@ -485,6 +496,7 @@
     <script>
         let selectedType = "";
         const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人", "カタコト"];
+        const wAcceptanceOptions = ["はい", "いいえ"];
         const updateReadingOptions = ["〇", "×"];
         const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス","フィフティ"];
         const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
@@ -500,6 +512,7 @@
         ];
         
         let selectedPersonalities = [];
+        let selectedWAcceptance = "";
         let selectedUpdateReading = "";
         let selectedCrosssellChecks = {};
         let selectedSharedContents = [];
@@ -507,6 +520,7 @@
         // ページ読み込み時の初期化
         document.addEventListener("DOMContentLoaded", function () {
             setupPersonalityButtons();
+            setupWAcceptanceButtons();
             setupUpdateReadingButtons();
             setupSharedContentButtons();
             setupCrosssellCheckButtons();
@@ -537,6 +551,35 @@
             if (storeName) {
                 restoreData(storeName, type); // タイプを明示的に渡す
             }
+        }
+
+        function setupWAcceptanceButtons() {
+            const wAcceptanceContainer = document.getElementById("wAcceptanceButtons");
+            wAcceptanceContainer.innerHTML = "";
+            
+            wAcceptanceOptions.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.className = "tag";
+                button.onclick = function () {
+                    Array.from(wAcceptanceContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    
+                    if (selectedWAcceptance === option) {
+                        selectedWAcceptance = "";
+                        button.classList.remove("selected");
+                    } else {
+                        selectedWAcceptance = option;
+                        button.classList.add("selected");
+                    }
+                    document.getElementById("wAcceptance").value = selectedWAcceptance;
+                    
+                    const storeName = document.getElementById("storeName").value.trim();
+                    if (storeName) {
+                        saveData(storeName);
+                    }
+                };
+                wAcceptanceContainer.appendChild(button);
+            });
         }
 
         function setupPersonalityButtons() {
@@ -774,7 +817,7 @@
 
         function setupStoreDataHandling() {
             const storeNameInput = document.getElementById("storeName");
-            const inputFields = ["personality", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
 
             // 店舗名を入力すると過去データを復元
             storeNameInput.addEventListener("input", function () {
@@ -834,7 +877,7 @@
                     const currentType = forceType || selectedType || "LINE"; // デフォルトはLINE
                     
                     // 入力フィールドの復元（共通項目）
-                    const commonFields = ["personality", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes"];
+                    const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
                     commonFields.forEach(field => {
                         const element = document.getElementById(field);
                         if (element && data[field] !== undefined) {
@@ -873,6 +916,25 @@
                         selectedPersonalities = [];
                         document.getElementById("personality").value = "";
                         document.querySelectorAll("#personalityButtons button").forEach(btn => {
+                            btn.classList.remove("selected");
+                        });
+                    }
+                    
+                    // W受ボタンの復元
+                    if (data.selectedWAcceptance) {
+                        selectedWAcceptance = data.selectedWAcceptance;
+                        const buttons = document.querySelectorAll("#wAcceptanceButtons button");
+                        buttons.forEach(button => {
+                            button.classList.remove("selected");
+                            if (selectedWAcceptance === button.textContent) {
+                                button.classList.add("selected");
+                            }
+                        });
+                        document.getElementById("wAcceptance").value = selectedWAcceptance;
+                    } else {
+                        selectedWAcceptance = "";
+                        document.getElementById("wAcceptance").value = "";
+                        document.querySelectorAll("#wAcceptanceButtons button").forEach(btn => {
                             btn.classList.remove("selected");
                         });
                     }
@@ -945,7 +1007,7 @@
                 if (!savedData[storeName]) savedData[storeName] = {};
         
                 // 入力フィールドの保存
-                const inputFields = ["personality", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes"];
+                const inputFields = ["personality", "wAcceptance", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
                 inputFields.forEach(field => {
                     const element = document.getElementById(field);
                     if (element) {
@@ -967,6 +1029,9 @@
                 // 人柄選択の保存
                 savedData[storeName].selectedPersonalities = [...selectedPersonalities];
 
+                // W受選択の保存
+                savedData[storeName].selectedWAcceptance = selectedWAcceptance;
+                
                 // 更新ヨミ選択の保存
                 savedData[storeName].selectedUpdateReading = selectedUpdateReading;
         
@@ -989,7 +1054,7 @@
 
         function resetFields() {
             // 入力フィールドのリセット
-            const inputFields = ["personality", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent"];
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
             inputFields.forEach(field => {
                 const element = document.getElementById(field);
                 if (element) {
@@ -1001,6 +1066,11 @@
             selectedPersonalities = [];
             const personalityButtons = document.querySelectorAll("#personalityButtons button");
             personalityButtons.forEach(button => button.classList.remove("selected"));
+
+            // W受ボタンのリセット
+            selectedWAcceptance = "";
+            const wAcceptanceButtons = document.querySelectorAll("#wAcceptanceButtons button");
+            wAcceptanceButtons.forEach(button => button.classList.remove("selected"));
 
             // 更新ヨミボタンのリセット
             selectedUpdateReading = "";
@@ -1023,7 +1093,9 @@ function copyToClipboard() {
     updateCrosssellCheckHiddenField(); // コピー直前に最新データを反映
 
     const storeName = document.getElementById("storeName").value;
+    const mtgDate = document.getElementById("mtgDate").value;
     const personality = document.getElementById("personality").value;
+    const wAcceptance = document.getElementById("wAcceptance").value;
     const updateReading = document.getElementById("updateReadingStatus").value;
     const notes = document.getElementById("notes").value;
     const changes = document.getElementById("changes").value;
@@ -1037,7 +1109,9 @@ function copyToClipboard() {
     if (selectedType === "LINE") {
         outputText = `L【サポートMTG】
 店舗名：${storeName}
+日付：${mtgDate}
 人柄：${personality}
+W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 備考：${notes}
 
@@ -1063,9 +1137,10 @@ ${crosssellNotes}`;
 
         outputText = `M【サポートMTG】
 店舗名：${storeName}
+日付：${mtgDate}
 人柄：${personality}
+W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
-備考：${notes}
 
 ◆修正・変更・追加設定◆
 ${changes}
