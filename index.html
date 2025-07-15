@@ -27,6 +27,35 @@
 
         * {
             box-sizing: border-box;
+            margin: 0;<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サポートMTGツール</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #ced4da;
+            --gray-dark: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
@@ -157,6 +186,7 @@
         }
 
         input[type="text"],
+        input[type="date"],
         textarea {
             width: 100%;
             padding: 12px;
@@ -164,13 +194,95 @@
             border-radius: var(--border-radius);
             font-size: 1rem;
             transition: var(--transition);
+            font-family: inherit;
         }
 
         input[type="text"]:focus,
+        input[type="date"]:focus,
         textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        /* 日付入力フィールドのスタイリング */
+        input[type="date"] {
+            position: relative;
+            background-color: white;
+            color: var(--gray-dark);
+            padding: 12px 15px;
+            cursor: pointer;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background-color: var(--primary);
+            border-radius: 4px;
+            padding: 3px;
+            cursor: pointer;
+            filter: invert(1);
+            margin-left: 10px;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* Firefox用の日付フィールドスタイル */
+        input[type="date"]::-moz-focus-inner {
+            border: 0;
+            padding: 0;
+        }
+
+        input[type="date"]::-webkit-datetime-edit {
+            color: var(--gray-dark);
+        }
+
+        input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+            padding: 0;
+        }
+
+        input[type="date"]::-webkit-datetime-edit-text {
+            color: var(--gray);
+            padding: 0 4px;
+        }
+
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+            color: var(--gray-dark);
+            background-color: transparent;
+            border: none;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        input[type="date"]::-webkit-datetime-edit-month-field:hover,
+        input[type="date"]::-webkit-datetime-edit-day-field:hover,
+        input[type="date"]::-webkit-datetime-edit-year-field:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        /* 日付フィールドにアイコンを追加 */
+        .date-input-wrapper {
+            position: relative;
+        }
+
+        .date-input-wrapper::before {
+            content: '\f073';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .date-input-wrapper input[type="date"] {
+            padding-left: 40px;
         }
 
         textarea {
@@ -411,7 +523,9 @@
 
             <div class="form-group">
                 <label for="mtgDate">日付</label>
-                <input type="date" id="mtgDate">
+                <div class="date-input-wrapper">
+                    <input type="date" id="mtgDate">
+                </div>
             </div>
 
             <div class="form-group">
@@ -492,7 +606,7 @@
             <div id="copyMessage" class="copy-message">コピーしました！</div>
         </div>
     </div>
-
+    
     <script>
         let selectedType = "";
         const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人", "カタコト"];
