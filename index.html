@@ -27,35 +27,6 @@
 
         * {
             box-sizing: border-box;
-            margin: 0;<!DOCTYPE html>
-<html lang="ja">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>サポートMTGツール</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4361ee;
-            --primary-light: #4895ef;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --info: #4895ef;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --gray-light: #ced4da;
-            --gray-dark: #343a40;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
@@ -327,6 +298,58 @@
             background-color: var(--primary-light);
         }
 
+        .evaluation-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .evaluation-item {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            border: 1px solid var(--gray-light);
+        }
+
+        .evaluation-title {
+            font-weight: 600;
+            color: var(--gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .evaluation-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .evaluation-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--gray-light);
+            background-color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .evaluation-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .evaluation-btn.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .evaluation-btn.selected:hover {
+            background-color: var(--primary-light);
+        }
+
         .section-title {
             display: flex;
             align-items: center;
@@ -460,8 +483,11 @@
         }
 
         @media (max-width: 768px) {
-            .checkbox-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            .evaluation-grid {
+                grid-template-columns: 1fr;
+            }
+            .evaluation-buttons {
+                justify-content: center;
             }
         }
 
@@ -544,6 +570,60 @@
                 <label for="updateReadingStatus">更新ヨミ</label>
                 <input type="text" id="updateReadingStatus" class="readonly-input" readonly>
                 <div class="tag-container" id="updateReadingButtons"></div>
+            </div>
+
+            <!-- 新しい評価項目セクション -->
+            <h2 class="section-title">評価項目</h2>
+            <div class="evaluation-grid">
+                <div class="evaluation-item">
+                    <div class="evaluation-title">関係値</div>
+                    <div class="evaluation-buttons">
+                        <button class="evaluation-btn" data-field="relationship" data-value="●">●</button>
+                        <button class="evaluation-btn" data-field="relationship" data-value="×">×</button>
+                    </div>
+                </div>
+                <div class="evaluation-item">
+                    <div class="evaluation-title">MTG実施頻度</div>
+                    <div class="evaluation-buttons">
+                        <button class="evaluation-btn" data-field="mtgFrequency" data-value="●">●</button>
+                        <button class="evaluation-btn" data-field="mtgFrequency" data-value="×">×</button>
+                    </div>
+                </div>
+                <div class="evaluation-item">
+                    <div class="evaluation-title">問い合わせの質</div>
+                    <div class="evaluation-buttons">
+                        <button class="evaluation-btn" data-field="inquiryQuality" data-value="●">●</button>
+                        <button class="evaluation-btn" data-field="inquiryQuality" data-value="×">×</button>
+                    </div>
+                </div>
+                <div class="evaluation-item">
+                    <div class="evaluation-title">燃えた</div>
+                    <div class="evaluation-buttons">
+                        <button class="evaluation-btn" data-field="enthusiasm" data-value="●">●</button>
+                        <button class="evaluation-btn" data-field="enthusiasm" data-value="×">×</button>
+                    </div>
+                </div>
+                <div class="evaluation-item">
+                    <div class="evaluation-title">MTG促しの反応</div>
+                    <div class="evaluation-buttons">
+                        <button class="evaluation-btn" data-field="mtgResponse" data-value="●">●</button>
+                        <button class="evaluation-btn" data-field="mtgResponse" data-value="×">×</button>
+                    </div>
+                </div>
+                <div class="evaluation-item">
+                    <div class="evaluation-title">システム利用</div>
+                    <div class="evaluation-buttons">
+                        <button class="evaluation-btn" data-field="systemUsage" data-value="●">●</button>
+                        <button class="evaluation-btn" data-field="systemUsage" data-value="×">×</button>
+                    </div>
+                </div>
+                <div class="evaluation-item">
+                    <div class="evaluation-title">効果実感</div>
+                    <div class="evaluation-buttons">
+                        <button class="evaluation-btn" data-field="effectRealization" data-value="●">●</button>
+                        <button class="evaluation-btn" data-field="effectRealization" data-value="×">×</button>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -630,6 +710,15 @@
         let selectedUpdateReading = "";
         let selectedCrosssellChecks = {};
         let selectedSharedContents = [];
+        let evaluationData = {
+            relationship: "",
+            mtgFrequency: "",
+            inquiryQuality: "",
+            enthusiasm: "",
+            mtgResponse: "",
+            systemUsage: "",
+            effectRealization: ""
+        };
 
         // ページ読み込み時の初期化
         document.addEventListener("DOMContentLoaded", function () {
@@ -638,6 +727,7 @@
             setupUpdateReadingButtons();
             setupSharedContentButtons();
             setupCrosssellCheckButtons();
+            setupEvaluationButtons();
             setupStoreDataHandling();
             setupStoreSuggestions();
         });
@@ -663,8 +753,37 @@
             // 店舗名が入力されている場合、データを復元
             const storeName = document.getElementById("storeName").value.trim();
             if (storeName) {
-                restoreData(storeName, type); // タイプを明示的に渡す
+                restoreData(storeName, type);
             }
+        }
+
+        function setupEvaluationButtons() {
+            const evaluationButtons = document.querySelectorAll('.evaluation-btn');
+            
+            evaluationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const field = this.getAttribute('data-field');
+                    const value = this.getAttribute('data-value');
+                    
+                    // 同じフィールドの他のボタンから選択状態を削除
+                    const fieldButtons = document.querySelectorAll(`[data-field="${field}"]`);
+                    fieldButtons.forEach(btn => btn.classList.remove('selected'));
+                    
+                    // 現在のボタンが既に選択されていた場合は選択解除、そうでなければ選択
+                    if (evaluationData[field] === value) {
+                        evaluationData[field] = "";
+                    } else {
+                        evaluationData[field] = value;
+                        this.classList.add('selected');
+                    }
+                    
+                    // データを保存
+                    const storeName = document.getElementById("storeName").value.trim();
+                    if (storeName) {
+                        saveData(storeName);
+                    }
+                });
+            });
         }
 
         function setupWAcceptanceButtons() {
@@ -698,7 +817,7 @@
 
         function setupPersonalityButtons() {
             const personalityContainer = document.getElementById("personalityButtons");
-            personalityContainer.innerHTML = ""; // 初期化
+            personalityContainer.innerHTML = "";
             
             personalityOptions.forEach(option => {
                 const button = document.createElement("button");
@@ -714,7 +833,6 @@
                     }
                     document.getElementById("personality").value = selectedPersonalities.join("、");
                     
-                    // 店舗名が入力されている場合、データを保存
                     const storeName = document.getElementById("storeName").value.trim();
                     if (storeName) {
                         saveData(storeName);
@@ -726,7 +844,7 @@
 
         function setupSharedContentButtons() {
             const sharedContentContainer = document.getElementById("sharedContentButtons");
-            sharedContentContainer.innerHTML = ""; // 初期化
+            sharedContentContainer.innerHTML = "";
             
             sharedContentOptions.forEach(option => {
                 const button = document.createElement("button");
@@ -743,7 +861,6 @@
                     }
                     document.getElementById("sharedContent").value = selectedSharedContents.join("、");
                     
-                    // 店舗名が入力されている場合、データを保存
                     const storeName = document.getElementById("storeName").value.trim();
                     if (storeName) {
                         saveData(storeName);
@@ -756,14 +873,13 @@
 
         function setupUpdateReadingButtons() {
             const updateReadingContainer = document.getElementById("updateReadingButtons");
-            updateReadingContainer.innerHTML = ""; // 初期化
+            updateReadingContainer.innerHTML = "";
             
             updateReadingOptions.forEach(option => {
                 const button = document.createElement("button");
                 button.textContent = option;
                 button.className = "tag";
                 button.onclick = function () {
-                    // 他のボタンの選択状態をリセット
                     Array.from(updateReadingContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
                     
                     if (selectedUpdateReading === option) {
@@ -775,7 +891,6 @@
                     }
                     document.getElementById("updateReadingStatus").value = selectedUpdateReading;
                     
-                    // 店舗名が入力されている場合、データを保存
                     const storeName = document.getElementById("storeName").value.trim();
                     if (storeName) {
                         saveData(storeName);
@@ -787,7 +902,7 @@
 
         function setupCrosssellCheckButtons() {
             const container = document.getElementById("crosssellCheckGroup");
-            container.innerHTML = ""; // 初期化
+            container.innerHTML = "";
 
             crosssellItems.forEach(item => {
                 const itemGroup = document.createElement("div");
@@ -800,7 +915,6 @@
                 const options = document.createElement("div");
                 options.className = "crosssell-options";
 
-                // 初期状態の設定（既に設定がなければ空文字列に）
                 if (selectedCrosssellChecks[item] === undefined) {
                     selectedCrosssellChecks[item] = "";
                 }
@@ -810,27 +924,21 @@
                     button.textContent = status;
                     button.className = "crosssell-option";
                     
-                    // 保存データを適用して選択状態を復元
                     if (selectedCrosssellChecks[item] === status) {
                         button.classList.add("selected");
                     }
 
                     button.onclick = function () {
                         if (selectedCrosssellChecks[item] === status) {
-                            // すでに選択されている場合、選択解除
                             selectedCrosssellChecks[item] = "";
                             button.classList.remove("selected");
                         } else {
-                            // そのアイテムの選択状態をリセット
                             Array.from(options.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-
-                            // 新しい選択を適用
                             selectedCrosssellChecks[item] = status;
                             button.classList.add("selected");
                         }
                         updateCrosssellCheckHiddenField();
                         
-                        // 店舗名が入力されている場合、データを保存
                         const storeName = document.getElementById("storeName").value.trim();
                         if (storeName) {
                             saveData(storeName);
@@ -845,7 +953,6 @@
                 container.appendChild(itemGroup);
             });
             
-            // コピー用テキストフィールドを更新
             updateCrosssellCheckHiddenField();
         }
 
@@ -858,29 +965,24 @@
             document.getElementById("crosssellCheckSelected").value = crosssellCheckText;
         }
 
-        // サジェスト機能の設定
         function setupStoreSuggestions() {
             const storeInput = document.getElementById("storeName");
             const suggestionsDiv = document.getElementById("suggestions");
             
-            // 入力フィールドにフォーカスがあたったときに処理
             storeInput.addEventListener("focus", function() {
                 updateSuggestions(this.value);
             });
             
-            // 入力内容が変わるたびに処理
             storeInput.addEventListener("input", function() {
                 updateSuggestions(this.value);
             });
             
-            // 入力フィールド以外をクリックしたときにサジェストを非表示
             document.addEventListener("click", function(e) {
                 if (e.target !== storeInput && e.target !== suggestionsDiv) {
                     suggestionsDiv.style.display = "none";
                 }
             });
 
-            // サジェスト項目をクリックした時の処理
             suggestionsDiv.addEventListener("click", function(e) {
                 if (e.target.classList.contains("suggestion-item")) {
                     storeInput.value = e.target.textContent;
@@ -890,7 +992,6 @@
             });
         }
 
-        // サジェスト一覧を更新する関数
         function updateSuggestions(query) {
             const suggestionsDiv = document.getElementById("suggestions");
             const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
@@ -901,19 +1002,15 @@
                 return;
             }
             
-            // 検索クエリに一致する店舗を検索
             let matchedStores = [];
             if (query.trim() === "") {
-                // 空の場合は全ての保存店舗を表示（最大10件）
                 matchedStores = storeNames.slice(0, 10);
             } else {
-                // クエリに部分一致する店舗を検索
                 matchedStores = storeNames.filter(name => 
                     name.toLowerCase().includes(query.toLowerCase())
-                ).slice(0, 10); // 最大10件まで
+                ).slice(0, 10);
             }
             
-            // サジェスト項目を生成
             if (matchedStores.length > 0) {
                 suggestionsDiv.innerHTML = "";
                 matchedStores.forEach(store => {
@@ -933,12 +1030,9 @@
             const storeNameInput = document.getElementById("storeName");
             const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
 
-            // 店舗名を入力すると過去データを復元
             storeNameInput.addEventListener("input", function () {
                 const storeName = this.value.trim();
                 if (storeName) {
-                    // サジェスト表示はupdateSuggestions関数で処理
-                    // デバッグ追加：保存データを取得して内容を確認
                     const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
                     if (savedData[storeName]) {
                         restoreData(storeName);
@@ -950,14 +1044,12 @@
                 }
             });
             
-            // Enter キーが押されたとき
             storeNameInput.addEventListener("keydown", function(e) {
                 if (e.key === "Enter") {
                     const suggestionsDiv = document.getElementById("suggestions");
                     const firstSuggestion = suggestionsDiv.querySelector(".suggestion-item");
                     
                     if (firstSuggestion && suggestionsDiv.style.display !== "none") {
-                        // 最初のサジェスト項目を選択
                         this.value = firstSuggestion.textContent;
                         suggestionsDiv.style.display = "none";
                         restoreData(this.value.trim());
@@ -966,7 +1058,6 @@
                 }
             });
 
-            // テキスト入力の変更を検出し、保存
             inputFields.forEach(field => {
                 const element = document.getElementById(field);
                 if (element) {
@@ -987,10 +1078,8 @@
                 if (savedData[storeName]) {
                     const data = savedData[storeName];
                     
-                    // タイプを判断
-                    const currentType = forceType || selectedType || "LINE"; // デフォルトはLINE
+                    const currentType = forceType || selectedType || "LINE";
                     
-                    // 入力フィールドの復元（共通項目）
                     const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
                     commonFields.forEach(field => {
                         const element = document.getElementById(field);
@@ -999,9 +1088,7 @@
                         }
                     });
         
-                    // タイプ別の項目復元
                     if (currentType === "MEO") {
-                        // MEO固有フィールドの復元
                         const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
                         meoFields.forEach(field => {
                             const element = document.getElementById(field);
@@ -1026,7 +1113,6 @@
                         });
                         document.getElementById("personality").value = selectedPersonalities.join("、");
                     } else {
-                        // 初期化
                         selectedPersonalities = [];
                         document.getElementById("personality").value = "";
                         document.querySelectorAll("#personalityButtons button").forEach(btn => {
@@ -1065,11 +1151,39 @@
                         });
                         document.getElementById("updateReadingStatus").value = selectedUpdateReading;
                     } else {
-                        // 初期化
                         selectedUpdateReading = "";
                         document.getElementById("updateReadingStatus").value = "";
                         document.querySelectorAll("#updateReadingButtons button").forEach(btn => {
                             btn.classList.remove("selected");
+                        });
+                    }
+
+                    // 評価データの復元
+                    if (data.evaluationData) {
+                        evaluationData = {...data.evaluationData};
+                        
+                        Object.entries(evaluationData).forEach(([field, value]) => {
+                            const fieldButtons = document.querySelectorAll(`[data-field="${field}"]`);
+                            fieldButtons.forEach(btn => {
+                                btn.classList.remove('selected');
+                                if (btn.getAttribute('data-value') === value) {
+                                    btn.classList.add('selected');
+                                }
+                            });
+                        });
+                    } else {
+                        // 評価データ初期化
+                        evaluationData = {
+                            relationship: "",
+                            mtgFrequency: "",
+                            inquiryQuality: "",
+                            enthusiasm: "",
+                            mtgResponse: "",
+                            systemUsage: "",
+                            effectRealization: ""
+                        };
+                        document.querySelectorAll('.evaluation-btn').forEach(btn => {
+                            btn.classList.remove('selected');
                         });
                     }
         
@@ -1088,7 +1202,6 @@
                         });
                         document.getElementById("sharedContent").value = selectedSharedContents.join("、");
                     } else if (currentType === "MEO") {
-                        // MEOモードで初期化
                         selectedSharedContents = [];
                         document.getElementById("sharedContent").value = "";
                         document.querySelectorAll("#sharedContentButtons button").forEach(btn => {
@@ -1099,9 +1212,8 @@
                     // クロスセルチェックの復元
                     if (data.crosssellSelections) {
                         selectedCrosssellChecks = {...data.crosssellSelections};
-                        setupCrosssellCheckButtons(); // 選択状態を反映
+                        setupCrosssellCheckButtons();
                     } else {
-                        // クロスセル初期化
                         selectedCrosssellChecks = {};
                         crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
                         setupCrosssellCheckButtons();
@@ -1111,7 +1223,7 @@
                 }
             } catch (error) {
                 console.error("データ復元中にエラーが発生しました:", error);
-                resetFields(); // エラー時はリセット
+                resetFields();
             }
         }
 
@@ -1120,7 +1232,6 @@
                 let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
                 if (!savedData[storeName]) savedData[storeName] = {};
         
-                // 入力フィールドの保存
                 const inputFields = ["personality", "wAcceptance", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
                 inputFields.forEach(field => {
                     const element = document.getElementById(field);
@@ -1129,7 +1240,6 @@
                     }
                 });
         
-                // タイプ別の項目保存
                 if (selectedType === "MEO") {
                     const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
                     meoFields.forEach(field => {
@@ -1140,24 +1250,17 @@
                     });
                 }
         
-                // 人柄選択の保存
                 savedData[storeName].selectedPersonalities = [...selectedPersonalities];
-
-                // W受選択の保存
                 savedData[storeName].selectedWAcceptance = selectedWAcceptance;
-                
-                // 更新ヨミ選択の保存
                 savedData[storeName].selectedUpdateReading = selectedUpdateReading;
+                savedData[storeName].evaluationData = {...evaluationData};
         
-                // 共有内容選択の保存（MEOのみ）
                 if (selectedType === "MEO") {
                     savedData[storeName].selectedSharedContents = [...selectedSharedContents];
                 }
                 
-                // クロスセルチェックボタンの保存
                 savedData[storeName].crosssellSelections = {...selectedCrosssellChecks};
         
-                // ローカルストレージに保存
                 localStorage.setItem("storeData", JSON.stringify(savedData));
                 return true;
             } catch (error) {
@@ -1167,7 +1270,6 @@
         }
 
         function resetFields() {
-            // 入力フィールドのリセット
             const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
             inputFields.forEach(field => {
                 const element = document.getElementById(field);
@@ -1176,57 +1278,80 @@
                 }
             });
 
-            // 人柄ボタンのリセット
             selectedPersonalities = [];
             const personalityButtons = document.querySelectorAll("#personalityButtons button");
             personalityButtons.forEach(button => button.classList.remove("selected"));
 
-            // W受ボタンのリセット
             selectedWAcceptance = "";
             const wAcceptanceButtons = document.querySelectorAll("#wAcceptanceButtons button");
             wAcceptanceButtons.forEach(button => button.classList.remove("selected"));
 
-            // 更新ヨミボタンのリセット
             selectedUpdateReading = "";
             const updateReadingButtons = document.querySelectorAll("#updateReadingButtons button");
             updateReadingButtons.forEach(button => button.classList.remove("selected"));
 
-            // 共有内容ボタンのリセット
+            // 評価データリセット
+            evaluationData = {
+                relationship: "",
+                mtgFrequency: "",
+                inquiryQuality: "",
+                enthusiasm: "",
+                mtgResponse: "",
+                systemUsage: "",
+                effectRealization: ""
+            };
+            document.querySelectorAll('.evaluation-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
             selectedSharedContents = [];
             const sharedContentButtons = document.querySelectorAll("#sharedContentButtons button");
             sharedContentButtons.forEach(button => button.classList.remove("selected"));
 
-            // クロスセルチェックのリセット
             selectedCrosssellChecks = {};
             crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
             setupCrosssellCheckButtons();
         }
 
-        // 既存のscript内のcopyToClipboard関数を修正する部分
-function copyToClipboard() {
-    updateCrosssellCheckHiddenField(); // コピー直前に最新データを反映
+        function copyToClipboard() {
+            updateCrosssellCheckHiddenField();
 
-    const storeName = document.getElementById("storeName").value;
-    const mtgDate = document.getElementById("mtgDate").value;
-    const personality = document.getElementById("personality").value;
-    const wAcceptance = document.getElementById("wAcceptance").value;
-    const updateReading = document.getElementById("updateReadingStatus").value;
-    const notes = document.getElementById("notes").value;
-    const changes = document.getElementById("changes").value;
-    const mtgContent = document.getElementById("mtgContent").value;
-    const nextPlan = document.getElementById("nextPlan").value;
-    const crosssellNotes = document.getElementById("crosssellNotes").value;
-    const checkSelected = document.getElementById("crosssellCheckSelected").value;
+            const storeName = document.getElementById("storeName").value;
+            const mtgDate = document.getElementById("mtgDate").value;
+            const personality = document.getElementById("personality").value;
+            const wAcceptance = document.getElementById("wAcceptance").value;
+            const updateReading = document.getElementById("updateReadingStatus").value;
+            const notes = document.getElementById("notes").value;
+            const changes = document.getElementById("changes").value;
+            const mtgContent = document.getElementById("mtgContent").value;
+            const nextPlan = document.getElementById("nextPlan").value;
+            const crosssellNotes = document.getElementById("crosssellNotes").value;
+            const checkSelected = document.getElementById("crosssellCheckSelected").value;
 
-    let outputText = "";
+            // 評価項目のテキスト作成
+            const evaluationText = [
+                `関係値：${evaluationData.relationship}`,
+                `MTG実施頻度：${evaluationData.mtgFrequency}`,
+                `問い合わせの質：${evaluationData.inquiryQuality}`,
+                `燃えた：${evaluationData.enthusiasm}`,
+                `MTG促しの反応：${evaluationData.mtgResponse}`,
+                `システム利用：${evaluationData.systemUsage}`,
+                `効果実感：${evaluationData.effectRealization}`
+            ].join("\n");
 
-    if (selectedType === "LINE") {
-        outputText = `L【サポートMTG】
+            let outputText = "";
+
+            if (selectedType === "LINE") {
+                outputText = `L【サポートMTG】
 店舗名：${storeName}
 日付：${mtgDate}
 人柄：${personality}
 W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
+
+◆評価項目◆
+${evaluationText}
+
 備考：${notes}
 
 ◆修正・変更・追加設定◆
@@ -1243,18 +1368,21 @@ ${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
-    } else if (selectedType === "MEO") {
-        const reviewCount = document.getElementById("reviewCount").value;
-        const sharedContent = document.getElementById("sharedContent").value;
-        const surveyCount = document.getElementById("surveyCount").value;
-        const searchRank = document.getElementById("searchRank").value;
+            } else if (selectedType === "MEO") {
+                const reviewCount = document.getElementById("reviewCount").value;
+                const sharedContent = document.getElementById("sharedContent").value;
+                const surveyCount = document.getElementById("surveyCount").value;
+                const searchRank = document.getElementById("searchRank").value;
 
-        outputText = `M【サポートMTG】
+                outputText = `M【サポートMTG】
 店舗名：${storeName}
 日付：${mtgDate}
 人柄：${personality}
 W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
+
+◆評価項目◆
+${evaluationText}
 
 ◆修正・変更・追加設定◆
 ${changes}
@@ -1278,44 +1406,18 @@ ${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
-    }
+            }
 
-    if (outputText) {
-        navigator.clipboard.writeText(outputText).then(() => {
-            const copyMessage = document.getElementById("copyMessage");
-            copyMessage.classList.add("visible");
-            setTimeout(() => copyMessage.classList.remove("visible"), 2000);
-        }).catch(err => {
-            console.error("コピーに失敗しました: ", err);
-        });
-    }
-}
-
-// toggleForm関数も修正する必要があります
-function toggleForm(type) {
-    document.getElementById("formContainer").style.display = "block";
-    document.querySelector(".line").classList.remove("active");
-    document.querySelector(".meo").classList.remove("active");
-
-    if (type === "LINE") {
-        document.querySelector(".line").classList.add("active");
-        document.getElementById("meoFields").style.display = "none";
-        document.getElementById("meoMtgField").style.display = "none";
-        document.getElementById("contentTitle").textContent = "MTG内容";
-    } else if (type === "MEO") {
-        document.querySelector(".meo").classList.add("active");
-        document.getElementById("meoFields").style.display = "block";
-        document.getElementById("meoMtgField").style.display = "block";
-        document.getElementById("contentTitle").textContent = "MTG内容";
-    }
-    selectedType = type;
-    
-    // 店舗名が入力されている場合、データを復元
-    const storeName = document.getElementById("storeName").value.trim();
-    if (storeName) {
-        restoreData(storeName, type); // タイプを明示的に渡す
-    }
-}
+            if (outputText) {
+                navigator.clipboard.writeText(outputText).then(() => {
+                    const copyMessage = document.getElementById("copyMessage");
+                    copyMessage.classList.add("visible");
+                    setTimeout(() => copyMessage.classList.remove("visible"), 2000);
+                }).catch(err => {
+                    console.error("コピーに失敗しました: ", err);
+                });
+            }
+        }
     </script>
 </body>
 
