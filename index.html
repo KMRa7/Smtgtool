@@ -298,58 +298,6 @@
             background-color: var(--primary-light);
         }
 
-        .evaluation-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .evaluation-item {
-            background-color: var(--light);
-            border-radius: var(--border-radius);
-            padding: 15px;
-            border: 1px solid var(--gray-light);
-        }
-
-        .evaluation-title {
-            font-weight: 600;
-            color: var(--gray-dark);
-            margin-bottom: 10px;
-        }
-
-        .evaluation-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .evaluation-btn {
-            padding: 8px 16px;
-            border: 1px solid var(--gray-light);
-            background-color: white;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 1rem;
-            font-weight: bold;
-            min-width: 45px;
-            text-align: center;
-        }
-
-        .evaluation-btn:hover {
-            background-color: #e9ecef;
-        }
-
-        .evaluation-btn.selected {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .evaluation-btn.selected:hover {
-            background-color: var(--primary-light);
-        }
-
         .section-title {
             display: flex;
             align-items: center;
@@ -483,11 +431,8 @@
         }
 
         @media (max-width: 768px) {
-            .evaluation-grid {
-                grid-template-columns: 1fr;
-            }
-            .evaluation-buttons {
-                justify-content: center;
+            .checkbox-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
 
@@ -572,58 +517,16 @@
                 <div class="tag-container" id="updateReadingButtons"></div>
             </div>
 
-            <!-- 新しい評価項目セクション -->
-            <h2 class="section-title">評価項目</h2>
-            <div class="evaluation-grid">
-                <div class="evaluation-item">
-                    <div class="evaluation-title">関係値</div>
-                    <div class="evaluation-buttons">
-                        <button class="evaluation-btn" data-field="relationship" data-value="〇">〇</button>
-                        <button class="evaluation-btn" data-field="relationship" data-value="✕">✕</button>
-                    </div>
-                </div>
-                <div class="evaluation-item">
-                    <div class="evaluation-title">MTG実施頻度</div>
-                    <div class="evaluation-buttons">
-                        <button class="evaluation-btn" data-field="mtgFrequency" data-value="〇">〇</button>
-                        <button class="evaluation-btn" data-field="mtgFrequency" data-value="✕">✕</button>
-                    </div>
-                </div>
-                <div class="evaluation-item">
-                    <div class="evaluation-title">問い合わせの質</div>
-                    <div class="evaluation-buttons">
-                        <button class="evaluation-btn" data-field="inquiryQuality" data-value="〇">〇</button>
-                        <button class="evaluation-btn" data-field="inquiryQuality" data-value="✕">✕</button>
-                    </div>
-                </div>
-                <div class="evaluation-item">
-                    <div class="evaluation-title">燃えた</div>
-                    <div class="evaluation-buttons">
-                        <button class="evaluation-btn" data-field="enthusiasm" data-value="〇">〇</button>
-                        <button class="evaluation-btn" data-field="enthusiasm" data-value="✕">✕</button>
-                    </div>
-                </div>
-                <div class="evaluation-item">
-                    <div class="evaluation-title">MTG促しの反応</div>
-                    <div class="evaluation-buttons">
-                        <button class="evaluation-btn" data-field="mtgResponse" data-value="〇">〇</button>
-                        <button class="evaluation-btn" data-field="mtgResponse" data-value="✕">✕</button>
-                    </div>
-                </div>
-                <div class="evaluation-item">
-                    <div class="evaluation-title">システム利用</div>
-                    <div class="evaluation-buttons">
-                        <button class="evaluation-btn" data-field="systemUsage" data-value="〇">〇</button>
-                        <button class="evaluation-btn" data-field="systemUsage" data-value="✕">✕</button>
-                    </div>
-                </div>
-                <div class="evaluation-item">
-                    <div class="evaluation-title">効果実感</div>
-                    <div class="evaluation-buttons">
-                        <button class="evaluation-btn" data-field="effectRealization" data-value="〇">〇</button>
-                        <button class="evaluation-btn" data-field="effectRealization" data-value="✕">✕</button>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label for="relationshipValue">関係値</label>
+                <input type="text" id="relationshipValue" class="readonly-input" readonly>
+                <div class="tag-container" id="relationshipButtons"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="effectivenessRealization">効果実感</label>
+                <input type="text" id="effectivenessRealization" class="readonly-input" readonly>
+                <div class="tag-container" id="effectivenessButtons"></div>
             </div>
 
             <div class="form-group">
@@ -691,7 +594,9 @@
         let selectedType = "";
         const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人", "カタコト"];
         const wAcceptanceOptions = ["はい", "いいえ"];
-        const updateReadingOptions = ["〇", "✕"];
+        const updateReadingOptions = ["〇", "×"];
+        const relationshipOptions = ["〇:仲良くなれている", "✕:仲良くなれていない"];
+        const effectivenessOptions = ["〇:成果(集客・新規など)を感じている", "✕:反応がない、実感なし"];
         const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス","フィフティ"];
         const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
         const sharedContentOptions = [
@@ -708,26 +613,20 @@
         let selectedPersonalities = [];
         let selectedWAcceptance = "";
         let selectedUpdateReading = "";
+        let selectedRelationship = "";
+        let selectedEffectiveness = "";
         let selectedCrosssellChecks = {};
         let selectedSharedContents = [];
-        let evaluationData = {
-            relationship: "",
-            mtgFrequency: "",
-            inquiryQuality: "",
-            enthusiasm: "",
-            mtgResponse: "",
-            systemUsage: "",
-            effectRealization: ""
-        };
 
         // ページ読み込み時の初期化
         document.addEventListener("DOMContentLoaded", function () {
             setupPersonalityButtons();
             setupWAcceptanceButtons();
             setupUpdateReadingButtons();
+            setupRelationshipButtons();
+            setupEffectivenessButtons();
             setupSharedContentButtons();
             setupCrosssellCheckButtons();
-            setupEvaluationButtons();
             setupStoreDataHandling();
             setupStoreSuggestions();
         });
@@ -755,35 +654,6 @@
             if (storeName) {
                 restoreData(storeName, type);
             }
-        }
-
-        function setupEvaluationButtons() {
-            const evaluationButtons = document.querySelectorAll('.evaluation-btn');
-            
-            evaluationButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const field = this.getAttribute('data-field');
-                    const value = this.getAttribute('data-value');
-                    
-                    // 同じフィールドの他のボタンから選択状態を削除
-                    const fieldButtons = document.querySelectorAll(`[data-field="${field}"]`);
-                    fieldButtons.forEach(btn => btn.classList.remove('selected'));
-                    
-                    // 現在のボタンが既に選択されていた場合は選択解除、そうでなければ選択
-                    if (evaluationData[field] === value) {
-                        evaluationData[field] = "";
-                    } else {
-                        evaluationData[field] = value;
-                        this.classList.add('selected');
-                    }
-                    
-                    // データを保存
-                    const storeName = document.getElementById("storeName").value.trim();
-                    if (storeName) {
-                        saveData(storeName);
-                    }
-                });
-            });
         }
 
         function setupWAcceptanceButtons() {
@@ -900,6 +770,64 @@
             });
         }
 
+        function setupRelationshipButtons() {
+            const relationshipContainer = document.getElementById("relationshipButtons");
+            relationshipContainer.innerHTML = "";
+            
+            relationshipOptions.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.className = "tag";
+                button.onclick = function () {
+                    Array.from(relationshipContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    
+                    if (selectedRelationship === option) {
+                        selectedRelationship = "";
+                        button.classList.remove("selected");
+                    } else {
+                        selectedRelationship = option;
+                        button.classList.add("selected");
+                    }
+                    document.getElementById("relationshipValue").value = selectedRelationship;
+                    
+                    const storeName = document.getElementById("storeName").value.trim();
+                    if (storeName) {
+                        saveData(storeName);
+                    }
+                };
+                relationshipContainer.appendChild(button);
+            });
+        }
+
+        function setupEffectivenessButtons() {
+            const effectivenessContainer = document.getElementById("effectivenessButtons");
+            effectivenessContainer.innerHTML = "";
+            
+            effectivenessOptions.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.className = "tag";
+                button.onclick = function () {
+                    Array.from(effectivenessContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    
+                    if (selectedEffectiveness === option) {
+                        selectedEffectiveness = "";
+                        button.classList.remove("selected");
+                    } else {
+                        selectedEffectiveness = option;
+                        button.classList.add("selected");
+                    }
+                    document.getElementById("effectivenessRealization").value = selectedEffectiveness;
+                    
+                    const storeName = document.getElementById("storeName").value.trim();
+                    if (storeName) {
+                        saveData(storeName);
+                    }
+                };
+                effectivenessContainer.appendChild(button);
+            });
+        }
+
         function setupCrosssellCheckButtons() {
             const container = document.getElementById("crosssellCheckGroup");
             container.innerHTML = "";
@@ -965,6 +893,7 @@
             document.getElementById("crosssellCheckSelected").value = crosssellCheckText;
         }
 
+        // サジェスト機能の設定
         function setupStoreSuggestions() {
             const storeInput = document.getElementById("storeName");
             const suggestionsDiv = document.getElementById("suggestions");
@@ -1028,7 +957,7 @@
 
         function setupStoreDataHandling() {
             const storeNameInput = document.getElementById("storeName");
-            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
 
             storeNameInput.addEventListener("input", function () {
                 const storeName = this.value.trim();
@@ -1077,10 +1006,9 @@
         
                 if (savedData[storeName]) {
                     const data = savedData[storeName];
-                    
                     const currentType = forceType || selectedType || "LINE";
                     
-                    const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
+                    const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
                     commonFields.forEach(field => {
                         const element = document.getElementById(field);
                         if (element && data[field] !== undefined) {
@@ -1158,32 +1086,41 @@
                         });
                     }
 
-                    // 評価データの復元
-                    if (data.evaluationData) {
-                        evaluationData = {...data.evaluationData};
-                        
-                        Object.entries(evaluationData).forEach(([field, value]) => {
-                            const fieldButtons = document.querySelectorAll(`[data-field="${field}"]`);
-                            fieldButtons.forEach(btn => {
-                                btn.classList.remove('selected');
-                                if (btn.getAttribute('data-value') === value) {
-                                    btn.classList.add('selected');
-                                }
-                            });
+                    // 関係値ボタンの復元
+                    if (data.selectedRelationship) {
+                        selectedRelationship = data.selectedRelationship;
+                        const buttons = document.querySelectorAll("#relationshipButtons button");
+                        buttons.forEach(button => {
+                            button.classList.remove("selected");
+                            if (selectedRelationship === button.textContent) {
+                                button.classList.add("selected");
+                            }
                         });
+                        document.getElementById("relationshipValue").value = selectedRelationship;
                     } else {
-                        // 評価データ初期化
-                        evaluationData = {
-                            relationship: "",
-                            mtgFrequency: "",
-                            inquiryQuality: "",
-                            enthusiasm: "",
-                            mtgResponse: "",
-                            systemUsage: "",
-                            effectRealization: ""
-                        };
-                        document.querySelectorAll('.evaluation-btn').forEach(btn => {
-                            btn.classList.remove('selected');
+                        selectedRelationship = "";
+                        document.getElementById("relationshipValue").value = "";
+                        document.querySelectorAll("#relationshipButtons button").forEach(btn => {
+                            btn.classList.remove("selected");
+                        });
+                    }
+
+                    // 効果実感ボタンの復元
+                    if (data.selectedEffectiveness) {
+                        selectedEffectiveness = data.selectedEffectiveness;
+                        const buttons = document.querySelectorAll("#effectivenessButtons button");
+                        buttons.forEach(button => {
+                            button.classList.remove("selected");
+                            if (selectedEffectiveness === button.textContent) {
+                                button.classList.add("selected");
+                            }
+                        });
+                        document.getElementById("effectivenessRealization").value = selectedEffectiveness;
+                    } else {
+                        selectedEffectiveness = "";
+                        document.getElementById("effectivenessRealization").value = "";
+                        document.querySelectorAll("#effectivenessButtons button").forEach(btn => {
+                            btn.classList.remove("selected");
                         });
                     }
         
@@ -1232,7 +1169,7 @@
                 let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
                 if (!savedData[storeName]) savedData[storeName] = {};
         
-                const inputFields = ["personality", "wAcceptance", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
+                const inputFields = ["personality", "wAcceptance", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
                 inputFields.forEach(field => {
                     const element = document.getElementById(field);
                     if (element) {
@@ -1253,7 +1190,8 @@
                 savedData[storeName].selectedPersonalities = [...selectedPersonalities];
                 savedData[storeName].selectedWAcceptance = selectedWAcceptance;
                 savedData[storeName].selectedUpdateReading = selectedUpdateReading;
-                savedData[storeName].evaluationData = {...evaluationData};
+                savedData[storeName].selectedRelationship = selectedRelationship;
+                savedData[storeName].selectedEffectiveness = selectedEffectiveness;
         
                 if (selectedType === "MEO") {
                     savedData[storeName].selectedSharedContents = [...selectedSharedContents];
@@ -1270,7 +1208,7 @@
         }
 
         function resetFields() {
-            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
             inputFields.forEach(field => {
                 const element = document.getElementById(field);
                 if (element) {
@@ -1290,19 +1228,13 @@
             const updateReadingButtons = document.querySelectorAll("#updateReadingButtons button");
             updateReadingButtons.forEach(button => button.classList.remove("selected"));
 
-            // 評価データリセット
-            evaluationData = {
-                relationship: "",
-                mtgFrequency: "",
-                inquiryQuality: "",
-                enthusiasm: "",
-                mtgResponse: "",
-                systemUsage: "",
-                effectRealization: ""
-            };
-            document.querySelectorAll('.evaluation-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
+            selectedRelationship = "";
+            const relationshipButtons = document.querySelectorAll("#relationshipButtons button");
+            relationshipButtons.forEach(button => button.classList.remove("selected"));
+
+            selectedEffectiveness = "";
+            const effectivenessButtons = document.querySelectorAll("#effectivenessButtons button");
+            effectivenessButtons.forEach(button => button.classList.remove("selected"));
 
             selectedSharedContents = [];
             const sharedContentButtons = document.querySelectorAll("#sharedContentButtons button");
@@ -1321,23 +1253,14 @@
             const personality = document.getElementById("personality").value;
             const wAcceptance = document.getElementById("wAcceptance").value;
             const updateReading = document.getElementById("updateReadingStatus").value;
+            const relationship = document.getElementById("relationshipValue").value;
+            const effectiveness = document.getElementById("effectivenessRealization").value;
             const notes = document.getElementById("notes").value;
             const changes = document.getElementById("changes").value;
             const mtgContent = document.getElementById("mtgContent").value;
             const nextPlan = document.getElementById("nextPlan").value;
             const crosssellNotes = document.getElementById("crosssellNotes").value;
             const checkSelected = document.getElementById("crosssellCheckSelected").value;
-
-            // 評価項目のテキスト作成
-            const evaluationText = [
-                `関係値：${evaluationData.relationship}`,
-                `MTG実施頻度：${evaluationData.mtgFrequency}`,
-                `問い合わせの質：${evaluationData.inquiryQuality}`,
-                `燃えた：${evaluationData.enthusiasm}`,
-                `MTG促しの反応：${evaluationData.mtgResponse}`,
-                `システム利用：${evaluationData.systemUsage}`,
-                `効果実感：${evaluationData.effectRealization}`
-            ].join("\n");
 
             let outputText = "";
 
@@ -1348,10 +1271,8 @@
 人柄：${personality}
 W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
-
-◆評価項目◆
-${evaluationText}
-
+関係値：${relationship}
+効果実感：${effectiveness}
 備考：${notes}
 
 ◆修正・変更・追加設定◆
@@ -1380,9 +1301,8 @@ ${crosssellNotes}`;
 人柄：${personality}
 W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
-
-◆評価項目◆
-${evaluationText}
+関係値：${relationship}
+効果実感：${effectiveness}
 
 ◆修正・変更・追加設定◆
 ${changes}
