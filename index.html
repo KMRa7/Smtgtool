@@ -36,8 +36,6 @@
             background-color: #f5f7fa;
             color: var(--dark);
             line-height: 1.6;
-            padding: 0;
-            margin: 0;
         }
 
         .container {
@@ -96,18 +94,7 @@
             border-right: 1px solid var(--gray-light);
         }
 
-        .tab.line::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background-color: #06C755;
-            transform: translateY(-100%);
-            transition: var(--transition);
-        }
-
+        .tab.line::before,
         .tab.meo::before {
             content: '';
             position: absolute;
@@ -115,9 +102,16 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background-color: var(--primary);
             transform: translateY(-100%);
             transition: var(--transition);
+        }
+
+        .tab.line::before {
+            background-color: #06C755;
+        }
+
+        .tab.meo::before {
+            background-color: var(--primary);
         }
 
         .tab.active.line {
@@ -143,6 +137,7 @@
             box-shadow: var(--box-shadow);
             margin-bottom: 30px;
             display: none;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .form-group {
@@ -176,9 +171,7 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
 
-        /* 日付入力フィールドのスタイリング */
         input[type="date"] {
-            position: relative;
             background-color: white;
             color: var(--gray-dark);
             padding: 12px 15px;
@@ -198,43 +191,6 @@
             background-color: var(--primary-light);
         }
 
-        /* Firefox用の日付フィールドスタイル */
-        input[type="date"]::-moz-focus-inner {
-            border: 0;
-            padding: 0;
-        }
-
-        input[type="date"]::-webkit-datetime-edit {
-            color: var(--gray-dark);
-        }
-
-        input[type="date"]::-webkit-datetime-edit-fields-wrapper {
-            padding: 0;
-        }
-
-        input[type="date"]::-webkit-datetime-edit-text {
-            color: var(--gray);
-            padding: 0 4px;
-        }
-
-        input[type="date"]::-webkit-datetime-edit-month-field,
-        input[type="date"]::-webkit-datetime-edit-day-field,
-        input[type="date"]::-webkit-datetime-edit-year-field {
-            color: var(--gray-dark);
-            background-color: transparent;
-            border: none;
-            padding: 2px 4px;
-            border-radius: 3px;
-            transition: var(--transition);
-        }
-
-        input[type="date"]::-webkit-datetime-edit-month-field:hover,
-        input[type="date"]::-webkit-datetime-edit-day-field:hover,
-        input[type="date"]::-webkit-datetime-edit-year-field:hover {
-            background-color: rgba(67, 97, 238, 0.1);
-        }
-
-        /* 日付フィールドにアイコンを追加 */
         .date-input-wrapper {
             position: relative;
         }
@@ -436,7 +392,6 @@
             }
         }
 
-        /* スタイリッシュなスクロールバーのカスタマイズ */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -456,14 +411,16 @@
             background: var(--gray);
         }
 
-        /* アニメーション関連 */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-        .form-container {
-            animation: fadeIn 0.3s ease-out;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -475,12 +432,8 @@
         </header>
 
         <div class="tabs">
-            <button class="tab line" onclick="toggleForm('LINE')">
-                <i class="fab fa-line"></i>LINE
-            </button>
-            <button class="tab meo" onclick="toggleForm('MEO')">
-                <i class="fas fa-store"></i>MEO
-            </button>
+            <button class="tab line" onclick="toggleForm('LINE')"><i class="fab fa-line"></i>LINE</button>
+            <button class="tab meo" onclick="toggleForm('MEO')"><i class="fas fa-store"></i>MEO</button>
         </div>
 
         <div id="formContainer" class="form-container">
@@ -528,6 +481,26 @@
                 <input type="text" id="effectivenessRealization" class="readonly-input" readonly>
                 <div class="tag-container" id="effectivenessButtons"></div>
             </div>
+
+            <!-- ▼ご要望の3項目（〇×ボタンで操作可能） -->
+            <div class="form-group">
+                <label for="dependence">依存度</label>
+                <input type="text" id="dependence" class="readonly-input" readonly>
+                <div class="tag-container" id="dependenceButtons"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="supportOutsideMtg">MTG外対応</label>
+                <input type="text" id="supportOutsideMtg" class="readonly-input" readonly>
+                <div class="tag-container" id="supportOutsideMtgButtons"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="communicationFrequency">やり取り頻度</label>
+                <input type="text" id="communicationFrequency" class="readonly-input" readonly>
+                <div class="tag-container" id="communicationFrequencyButtons"></div>
+            </div>
+            <!-- ▲ここまで -->
 
             <div class="form-group">
                 <label for="notes">備考</label>
@@ -589,7 +562,7 @@
             <div id="copyMessage" class="copy-message">コピーしました！</div>
         </div>
     </div>
-    
+
     <script>
         let selectedType = "";
         const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人", "カタコト"];
@@ -597,7 +570,14 @@
         const updateReadingOptions = ["〇", "×"];
         const relationshipOptions = ["〇:仲良くなれている", "✕:仲良くなれていない"];
         const effectivenessOptions = ["〇:成果(集客・新規など)を感じている", "✕:反応がない、実感なし"];
-        const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス","フィフティ"];
+
+        // ▼ご要望の3項目（〇×）
+        const dependenceOptions = ["〇", "×"];
+        const supportOutsideMtgOptions = ["〇", "×"];
+        const communicationFrequencyOptions = ["〇", "×"];
+        // ▲
+
+        const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス", "フィフティ"];
         const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
         const sharedContentOptions = [
             "AI運用アシスタント結果",
@@ -609,7 +589,7 @@
             "インスタ注意事項",
             "アンケートPDF"
         ];
-        
+
         let selectedPersonalities = [];
         let selectedWAcceptance = "";
         let selectedUpdateReading = "";
@@ -618,7 +598,12 @@
         let selectedCrosssellChecks = {};
         let selectedSharedContents = [];
 
-        // ページ読み込み時の初期化
+        // ▼追加：選択状態を保持
+        let selectedDependence = "";
+        let selectedSupportOutsideMtg = "";
+        let selectedCommunicationFrequency = "";
+        // ▲
+
         document.addEventListener("DOMContentLoaded", function () {
             setupPersonalityButtons();
             setupWAcceptanceButtons();
@@ -626,6 +611,13 @@
             setupRelationshipButtons();
             setupEffectivenessButtons();
             setupSharedContentButtons();
+
+            // ▼追加：3項目のセットアップ
+            setupDependenceButtons();
+            setupSupportOutsideMtgButtons();
+            setupCommunicationFrequencyButtons();
+            // ▲
+
             setupCrosssellCheckButtons();
             setupStoreDataHandling();
             setupStoreSuggestions();
@@ -635,7 +627,7 @@
             document.getElementById("formContainer").style.display = "block";
             document.querySelector(".line").classList.remove("active");
             document.querySelector(".meo").classList.remove("active");
-        
+
             if (type === "LINE") {
                 document.querySelector(".line").classList.add("active");
                 document.getElementById("meoFields").style.display = "none";
@@ -648,518 +640,351 @@
                 document.getElementById("contentTitle").textContent = "MTG内容";
             }
             selectedType = type;
-            
-            // 店舗名が入力されている場合、データを復元
+
             const storeName = document.getElementById("storeName").value.trim();
-            if (storeName) {
-                restoreData(storeName, type);
-            }
+            if (storeName) restoreData(storeName, type);
         }
 
         function setupWAcceptanceButtons() {
-            const wAcceptanceContainer = document.getElementById("wAcceptanceButtons");
-            wAcceptanceContainer.innerHTML = "";
-            
+            const c = document.getElementById("wAcceptanceButtons");
+            c.innerHTML = "";
             wAcceptanceOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.className = "tag";
-                button.onclick = function () {
-                    Array.from(wAcceptanceContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    
-                    if (selectedWAcceptance === option) {
-                        selectedWAcceptance = "";
-                        button.classList.remove("selected");
-                    } else {
-                        selectedWAcceptance = option;
-                        button.classList.add("selected");
-                    }
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
+                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    if (selectedWAcceptance === option) { selectedWAcceptance = ""; b.classList.remove("selected"); }
+                    else { selectedWAcceptance = option; b.classList.add("selected"); }
                     document.getElementById("wAcceptance").value = selectedWAcceptance;
-                    
-                    const storeName = document.getElementById("storeName").value.trim();
-                    if (storeName) {
-                        saveData(storeName);
-                    }
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                 };
-                wAcceptanceContainer.appendChild(button);
+                c.appendChild(b);
             });
         }
 
         function setupPersonalityButtons() {
-            const personalityContainer = document.getElementById("personalityButtons");
-            personalityContainer.innerHTML = "";
-            
+            const c = document.getElementById("personalityButtons");
+            c.innerHTML = "";
             personalityOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.className = "tag";
-                button.onclick = function () {
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
                     if (selectedPersonalities.includes(option)) {
                         selectedPersonalities = selectedPersonalities.filter(p => p !== option);
-                        button.classList.remove("selected");
+                        b.classList.remove("selected");
                     } else {
                         selectedPersonalities.push(option);
-                        button.classList.add("selected");
+                        b.classList.add("selected");
                     }
                     document.getElementById("personality").value = selectedPersonalities.join("、");
-                    
-                    const storeName = document.getElementById("storeName").value.trim();
-                    if (storeName) {
-                        saveData(storeName);
-                    }
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                 };
-                personalityContainer.appendChild(button);
+                c.appendChild(b);
             });
         }
 
         function setupSharedContentButtons() {
-            const sharedContentContainer = document.getElementById("sharedContentButtons");
-            sharedContentContainer.innerHTML = "";
-            
+            const c = document.getElementById("sharedContentButtons");
+            c.innerHTML = "";
             sharedContentOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.className = "tag";
-
-                button.onclick = function () {
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
                     if (selectedSharedContents.includes(option)) {
                         selectedSharedContents = selectedSharedContents.filter(p => p !== option);
-                        button.classList.remove("selected");
+                        b.classList.remove("selected");
                     } else {
                         selectedSharedContents.push(option);
-                        button.classList.add("selected");
+                        b.classList.add("selected");
                     }
                     document.getElementById("sharedContent").value = selectedSharedContents.join("、");
-                    
-                    const storeName = document.getElementById("storeName").value.trim();
-                    if (storeName) {
-                        saveData(storeName);
-                    }
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                 };
-
-                sharedContentContainer.appendChild(button);
+                c.appendChild(b);
             });
         }
 
         function setupUpdateReadingButtons() {
-            const updateReadingContainer = document.getElementById("updateReadingButtons");
-            updateReadingContainer.innerHTML = "";
-            
+            const c = document.getElementById("updateReadingButtons");
+            c.innerHTML = "";
             updateReadingOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.className = "tag";
-                button.onclick = function () {
-                    Array.from(updateReadingContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    
-                    if (selectedUpdateReading === option) {
-                        selectedUpdateReading = "";
-                        button.classList.remove("selected");
-                    } else {
-                        selectedUpdateReading = option;
-                        button.classList.add("selected");
-                    }
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
+                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    if (selectedUpdateReading === option) { selectedUpdateReading = ""; b.classList.remove("selected"); }
+                    else { selectedUpdateReading = option; b.classList.add("selected"); }
                     document.getElementById("updateReadingStatus").value = selectedUpdateReading;
-                    
-                    const storeName = document.getElementById("storeName").value.trim();
-                    if (storeName) {
-                        saveData(storeName);
-                    }
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                 };
-                updateReadingContainer.appendChild(button);
+                c.appendChild(b);
             });
         }
 
         function setupRelationshipButtons() {
-            const relationshipContainer = document.getElementById("relationshipButtons");
-            relationshipContainer.innerHTML = "";
-            
+            const c = document.getElementById("relationshipButtons");
+            c.innerHTML = "";
             relationshipOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.className = "tag";
-                button.onclick = function () {
-                    Array.from(relationshipContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    
-                    if (selectedRelationship === option) {
-                        selectedRelationship = "";
-                        button.classList.remove("selected");
-                    } else {
-                        selectedRelationship = option;
-                        button.classList.add("selected");
-                    }
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
+                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    if (selectedRelationship === option) { selectedRelationship = ""; b.classList.remove("selected"); }
+                    else { selectedRelationship = option; b.classList.add("selected"); }
                     document.getElementById("relationshipValue").value = selectedRelationship;
-                    
-                    const storeName = document.getElementById("storeName").value.trim();
-                    if (storeName) {
-                        saveData(storeName);
-                    }
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                 };
-                relationshipContainer.appendChild(button);
+                c.appendChild(b);
             });
         }
 
         function setupEffectivenessButtons() {
-            const effectivenessContainer = document.getElementById("effectivenessButtons");
-            effectivenessContainer.innerHTML = "";
-            
+            const c = document.getElementById("effectivenessButtons");
+            c.innerHTML = "";
             effectivenessOptions.forEach(option => {
-                const button = document.createElement("button");
-                button.textContent = option;
-                button.className = "tag";
-                button.onclick = function () {
-                    Array.from(effectivenessContainer.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    
-                    if (selectedEffectiveness === option) {
-                        selectedEffectiveness = "";
-                        button.classList.remove("selected");
-                    } else {
-                        selectedEffectiveness = option;
-                        button.classList.add("selected");
-                    }
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
+                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    if (selectedEffectiveness === option) { selectedEffectiveness = ""; b.classList.remove("selected"); }
+                    else { selectedEffectiveness = option; b.classList.add("selected"); }
                     document.getElementById("effectivenessRealization").value = selectedEffectiveness;
-                    
-                    const storeName = document.getElementById("storeName").value.trim();
-                    if (storeName) {
-                        saveData(storeName);
-                    }
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                 };
-                effectivenessContainer.appendChild(button);
+                c.appendChild(b);
             });
         }
+
+        // ▼新規：依存度
+        function setupDependenceButtons() {
+            const c = document.getElementById("dependenceButtons");
+            c.innerHTML = "";
+            dependenceOptions.forEach(option => {
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
+                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    if (selectedDependence === option) { selectedDependence = ""; b.classList.remove("selected"); }
+                    else { selectedDependence = option; b.classList.add("selected"); }
+                    document.getElementById("dependence").value = selectedDependence;
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
+                };
+                c.appendChild(b);
+            });
+        }
+
+        // ▼新規：MTG外対応
+        function setupSupportOutsideMtgButtons() {
+            const c = document.getElementById("supportOutsideMtgButtons");
+            c.innerHTML = "";
+            supportOutsideMtgOptions.forEach(option => {
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
+                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    if (selectedSupportOutsideMtg === option) { selectedSupportOutsideMtg = ""; b.classList.remove("selected"); }
+                    else { selectedSupportOutsideMtg = option; b.classList.add("selected"); }
+                    document.getElementById("supportOutsideMtg").value = selectedSupportOutsideMtg;
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
+                };
+                c.appendChild(b);
+            });
+        }
+
+        // ▼新規：やり取り頻度
+        function setupCommunicationFrequencyButtons() {
+            const c = document.getElementById("communicationFrequencyButtons");
+            c.innerHTML = "";
+            communicationFrequencyOptions.forEach(option => {
+                const b = document.createElement("button");
+                b.textContent = option; b.className = "tag";
+                b.onclick = function () {
+                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
+                    if (selectedCommunicationFrequency === option) { selectedCommunicationFrequency = ""; b.classList.remove("selected"); }
+                    else { selectedCommunicationFrequency = option; b.classList.add("selected"); }
+                    document.getElementById("communicationFrequency").value = selectedCommunicationFrequency;
+                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
+                };
+                c.appendChild(b);
+            });
+        }
+        // ▲ここまで追加
 
         function setupCrosssellCheckButtons() {
             const container = document.getElementById("crosssellCheckGroup");
             container.innerHTML = "";
-
             crosssellItems.forEach(item => {
                 const itemGroup = document.createElement("div");
                 itemGroup.className = "crosssell-group";
-                
                 const title = document.createElement("div");
                 title.className = "crosssell-title";
                 title.innerHTML = `<i class="fas fa-tag"></i> ${item}`;
-                
                 const options = document.createElement("div");
                 options.className = "crosssell-options";
-
-                if (selectedCrosssellChecks[item] === undefined) {
-                    selectedCrosssellChecks[item] = "";
-                }
-
+                if (selectedCrosssellChecks[item] === undefined) selectedCrosssellChecks[item] = "";
                 checkStatuses.forEach(status => {
                     const button = document.createElement("button");
-                    button.textContent = status;
-                    button.className = "crosssell-option";
-                    
-                    if (selectedCrosssellChecks[item] === status) {
-                        button.classList.add("selected");
-                    }
-
+                    button.textContent = status; button.className = "crosssell-option";
+                    if (selectedCrosssellChecks[item] === status) button.classList.add("selected");
                     button.onclick = function () {
                         if (selectedCrosssellChecks[item] === status) {
-                            selectedCrosssellChecks[item] = "";
-                            button.classList.remove("selected");
+                            selectedCrosssellChecks[item] = ""; button.classList.remove("selected");
                         } else {
                             Array.from(options.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                            selectedCrosssellChecks[item] = status;
-                            button.classList.add("selected");
+                            selectedCrosssellChecks[item] = status; button.classList.add("selected");
                         }
                         updateCrosssellCheckHiddenField();
-                        
-                        const storeName = document.getElementById("storeName").value.trim();
-                        if (storeName) {
-                            saveData(storeName);
-                        }
+                        const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                     };
-
                     options.appendChild(button);
                 });
-                
-                itemGroup.appendChild(title);
-                itemGroup.appendChild(options);
-                container.appendChild(itemGroup);
+                itemGroup.appendChild(title); itemGroup.appendChild(options); container.appendChild(itemGroup);
             });
-            
             updateCrosssellCheckHiddenField();
-        }
-
-        function updateCrosssellCheckHiddenField() {
-            let crosssellCheckText = Object.entries(selectedCrosssellChecks)
-                .filter(([_, status]) => status !== "")
-                .map(([item, status]) => `${item}：${status}`)
-                .join("、\n");
-
-            document.getElementById("crosssellCheckSelected").value = crosssellCheckText;
-        }
-
-        // サジェスト機能の設定
-        function setupStoreSuggestions() {
-            const storeInput = document.getElementById("storeName");
-            const suggestionsDiv = document.getElementById("suggestions");
-            
-            storeInput.addEventListener("focus", function() {
-                updateSuggestions(this.value);
-            });
-            
-            storeInput.addEventListener("input", function() {
-                updateSuggestions(this.value);
-            });
-            
-            document.addEventListener("click", function(e) {
-                if (e.target !== storeInput && e.target !== suggestionsDiv) {
-                    suggestionsDiv.style.display = "none";
-                }
-            });
-
-            suggestionsDiv.addEventListener("click", function(e) {
-                if (e.target.classList.contains("suggestion-item")) {
-                    storeInput.value = e.target.textContent;
-                    suggestionsDiv.style.display = "none";
-                    restoreData(storeInput.value.trim());
-                }
-            });
         }
 
         function updateSuggestions(query) {
             const suggestionsDiv = document.getElementById("suggestions");
             const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
             const storeNames = Object.keys(savedData);
-            
-            if (storeNames.length === 0) {
-                suggestionsDiv.style.display = "none";
-                return;
-            }
-            
+            if (storeNames.length === 0) { suggestionsDiv.style.display = "none"; return; }
             let matchedStores = [];
-            if (query.trim() === "") {
-                matchedStores = storeNames.slice(0, 10);
-            } else {
-                matchedStores = storeNames.filter(name => 
-                    name.toLowerCase().includes(query.toLowerCase())
-                ).slice(0, 10);
-            }
-            
+            if (query.trim() === "") matchedStores = storeNames.slice(0, 10);
+            else matchedStores = storeNames.filter(name => name.toLowerCase().includes(query.toLowerCase())).slice(0, 10);
             if (matchedStores.length > 0) {
                 suggestionsDiv.innerHTML = "";
                 matchedStores.forEach(store => {
                     const item = document.createElement("div");
-                    item.classList.add("suggestion-item");
-                    item.textContent = store;
+                    item.classList.add("suggestion-item"); item.textContent = store;
                     suggestionsDiv.appendChild(item);
                 });
-                
                 suggestionsDiv.style.display = "block";
-            } else {
-                suggestionsDiv.style.display = "none";
-            }
+            } else { suggestionsDiv.style.display = "none"; }
+        }
+
+        function setupStoreSuggestions() {
+            const storeInput = document.getElementById("storeName");
+            const suggestionsDiv = document.getElementById("suggestions");
+            storeInput.addEventListener("focus", function () { updateSuggestions(this.value); });
+            storeInput.addEventListener("input", function () { updateSuggestions(this.value); });
+            document.addEventListener("click", function (e) { if (e.target !== storeInput && e.target !== suggestionsDiv) suggestionsDiv.style.display = "none"; });
+            suggestionsDiv.addEventListener("click", function (e) {
+                if (e.target.classList.contains("suggestion-item")) {
+                    storeInput.value = e.target.textContent; suggestionsDiv.style.display = "none"; restoreData(storeInput.value.trim());
+                }
+            });
         }
 
         function setupStoreDataHandling() {
             const storeNameInput = document.getElementById("storeName");
-            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
-
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
             storeNameInput.addEventListener("input", function () {
                 const storeName = this.value.trim();
                 if (storeName) {
                     const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-                    if (savedData[storeName]) {
-                        restoreData(storeName);
-                    } else {
-                        resetFields();
-                    }
-                } else {
-                    resetFields();
-                }
+                    if (savedData[storeName]) restoreData(storeName); else resetFields();
+                } else resetFields();
             });
-            
-            storeNameInput.addEventListener("keydown", function(e) {
+            storeNameInput.addEventListener("keydown", function (e) {
                 if (e.key === "Enter") {
                     const suggestionsDiv = document.getElementById("suggestions");
                     const firstSuggestion = suggestionsDiv.querySelector(".suggestion-item");
-                    
                     if (firstSuggestion && suggestionsDiv.style.display !== "none") {
-                        this.value = firstSuggestion.textContent;
-                        suggestionsDiv.style.display = "none";
-                        restoreData(this.value.trim());
-                        e.preventDefault();
+                        this.value = firstSuggestion.textContent; suggestionsDiv.style.display = "none"; restoreData(this.value.trim()); e.preventDefault();
                     }
                 }
             });
-
             inputFields.forEach(field => {
                 const element = document.getElementById(field);
-                if (element) {
-                    element.addEventListener("input", function () {
-                        const storeName = storeNameInput.value.trim();
-                        if (storeName) {
-                            saveData(storeName);
-                        }
-                    });
-                }
+                if (element) element.addEventListener("input", function () {
+                    const storeName = storeNameInput.value.trim(); if (storeName) saveData(storeName);
+                });
             });
         }
 
         function restoreData(storeName, forceType = null) {
             try {
                 const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-        
-                if (savedData[storeName]) {
-                    const data = savedData[storeName];
-                    const currentType = forceType || selectedType || "LINE";
-                    
-                    const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
-                    commonFields.forEach(field => {
-                        const element = document.getElementById(field);
-                        if (element && data[field] !== undefined) {
-                            element.value = data[field];
-                        }
-                    });
-        
-                    if (currentType === "MEO") {
-                        const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
-                        meoFields.forEach(field => {
-                            const element = document.getElementById(field);
-                            if (element && data[field] !== undefined) {
-                                element.value = data[field];
-                            }
-                        });
-                    }
-        
-                    // 人柄ボタンの復元
-                    if (data.selectedPersonalities) {
-                        selectedPersonalities = Array.isArray(data.selectedPersonalities) 
-                            ? data.selectedPersonalities 
-                            : [];
-                            
-                        const buttons = document.querySelectorAll("#personalityButtons button");
-                        buttons.forEach(button => {
-                            button.classList.remove("selected");
-                            if (selectedPersonalities.includes(button.textContent)) {
-                                button.classList.add("selected");
-                            }
-                        });
-                        document.getElementById("personality").value = selectedPersonalities.join("、");
-                    } else {
-                        selectedPersonalities = [];
-                        document.getElementById("personality").value = "";
-                        document.querySelectorAll("#personalityButtons button").forEach(btn => {
-                            btn.classList.remove("selected");
-                        });
-                    }
-                    
-                    // W受ボタンの復元
-                    if (data.selectedWAcceptance) {
-                        selectedWAcceptance = data.selectedWAcceptance;
-                        const buttons = document.querySelectorAll("#wAcceptanceButtons button");
-                        buttons.forEach(button => {
-                            button.classList.remove("selected");
-                            if (selectedWAcceptance === button.textContent) {
-                                button.classList.add("selected");
-                            }
-                        });
-                        document.getElementById("wAcceptance").value = selectedWAcceptance;
-                    } else {
-                        selectedWAcceptance = "";
-                        document.getElementById("wAcceptance").value = "";
-                        document.querySelectorAll("#wAcceptanceButtons button").forEach(btn => {
-                            btn.classList.remove("selected");
-                        });
-                    }
+                if (!savedData[storeName]) { resetFields(); return; }
+                const data = savedData[storeName];
+                const currentType = forceType || selectedType || "LINE";
 
-                    // 更新ヨミボタンの復元
-                    if (data.selectedUpdateReading) {
-                        selectedUpdateReading = data.selectedUpdateReading;
-                        const buttons = document.querySelectorAll("#updateReadingButtons button");
-                        buttons.forEach(button => {
-                            button.classList.remove("selected");
-                            if (selectedUpdateReading === button.textContent) {
-                                button.classList.add("selected");
-                            }
-                        });
-                        document.getElementById("updateReadingStatus").value = selectedUpdateReading;
-                    } else {
-                        selectedUpdateReading = "";
-                        document.getElementById("updateReadingStatus").value = "";
-                        document.querySelectorAll("#updateReadingButtons button").forEach(btn => {
-                            btn.classList.remove("selected");
-                        });
-                    }
+                const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
+                commonFields.forEach(field => { const el = document.getElementById(field); if (el && data[field] !== undefined) el.value = data[field]; });
 
-                    // 関係値ボタンの復元
-                    if (data.selectedRelationship) {
-                        selectedRelationship = data.selectedRelationship;
-                        const buttons = document.querySelectorAll("#relationshipButtons button");
-                        buttons.forEach(button => {
-                            button.classList.remove("selected");
-                            if (selectedRelationship === button.textContent) {
-                                button.classList.add("selected");
-                            }
-                        });
-                        document.getElementById("relationshipValue").value = selectedRelationship;
-                    } else {
-                        selectedRelationship = "";
-                        document.getElementById("relationshipValue").value = "";
-                        document.querySelectorAll("#relationshipButtons button").forEach(btn => {
-                            btn.classList.remove("selected");
-                        });
-                    }
-
-                    // 効果実感ボタンの復元
-                    if (data.selectedEffectiveness) {
-                        selectedEffectiveness = data.selectedEffectiveness;
-                        const buttons = document.querySelectorAll("#effectivenessButtons button");
-                        buttons.forEach(button => {
-                            button.classList.remove("selected");
-                            if (selectedEffectiveness === button.textContent) {
-                                button.classList.add("selected");
-                            }
-                        });
-                        document.getElementById("effectivenessRealization").value = selectedEffectiveness;
-                    } else {
-                        selectedEffectiveness = "";
-                        document.getElementById("effectivenessRealization").value = "";
-                        document.querySelectorAll("#effectivenessButtons button").forEach(btn => {
-                            btn.classList.remove("selected");
-                        });
-                    }
-        
-                    // 共有内容ボタンの復元（MEOのみ）
-                    if (currentType === "MEO" && data.selectedSharedContents) {
-                        selectedSharedContents = Array.isArray(data.selectedSharedContents) 
-                            ? data.selectedSharedContents 
-                            : [];
-                            
-                        const buttons = document.querySelectorAll("#sharedContentButtons button");
-                        buttons.forEach(button => {
-                            button.classList.remove("selected");
-                            if (selectedSharedContents.includes(button.textContent)) {
-                                button.classList.add("selected");
-                            }
-                        });
-                        document.getElementById("sharedContent").value = selectedSharedContents.join("、");
-                    } else if (currentType === "MEO") {
-                        selectedSharedContents = [];
-                        document.getElementById("sharedContent").value = "";
-                        document.querySelectorAll("#sharedContentButtons button").forEach(btn => {
-                            btn.classList.remove("selected");
-                        });
-                    }
-        
-                    // クロスセルチェックの復元
-                    if (data.crosssellSelections) {
-                        selectedCrosssellChecks = {...data.crosssellSelections};
-                        setupCrosssellCheckButtons();
-                    } else {
-                        selectedCrosssellChecks = {};
-                        crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
-                        setupCrosssellCheckButtons();
-                    }
-                } else {
-                    resetFields();
+                if (currentType === "MEO") {
+                    const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
+                    meoFields.forEach(field => { const el = document.getElementById(field); if (el && data[field] !== undefined) el.value = data[field]; });
                 }
-            } catch (error) {
-                console.error("データ復元中にエラーが発生しました:", error);
+
+                // 人柄
+                if (data.selectedPersonalities) {
+                    selectedPersonalities = Array.isArray(data.selectedPersonalities) ? data.selectedPersonalities : [];
+                    document.querySelectorAll("#personalityButtons button").forEach(btn => {
+                        btn.classList.toggle("selected", selectedPersonalities.includes(btn.textContent));
+                    });
+                    document.getElementById("personality").value = selectedPersonalities.join("、");
+                } else {
+                    selectedPersonalities = [];
+                    document.getElementById("personality").value = "";
+                    document.querySelectorAll("#personalityButtons button").forEach(btn => btn.classList.remove("selected"));
+                }
+
+                // W受
+                selectedWAcceptance = data.selectedWAcceptance || "";
+                document.querySelectorAll("#wAcceptanceButtons button").forEach(btn => btn.classList.toggle("selected", selectedWAcceptance === btn.textContent));
+                document.getElementById("wAcceptance").value = selectedWAcceptance;
+
+                // 更新ヨミ
+                selectedUpdateReading = data.selectedUpdateReading || "";
+                document.querySelectorAll("#updateReadingButtons button").forEach(btn => btn.classList.toggle("selected", selectedUpdateReading === btn.textContent));
+                document.getElementById("updateReadingStatus").value = selectedUpdateReading;
+
+                // 関係値
+                selectedRelationship = data.selectedRelationship || "";
+                document.querySelectorAll("#relationshipButtons button").forEach(btn => btn.classList.toggle("selected", selectedRelationship === btn.textContent));
+                document.getElementById("relationshipValue").value = selectedRelationship;
+
+                // 効果実感
+                selectedEffectiveness = data.selectedEffectiveness || "";
+                document.querySelectorAll("#effectivenessButtons button").forEach(btn => btn.classList.toggle("selected", selectedEffectiveness === btn.textContent));
+                document.getElementById("effectivenessRealization").value = selectedEffectiveness;
+
+                // ▼追加：依存度／MTG外対応／やり取り頻度
+                selectedDependence = data.selectedDependence || "";
+                document.querySelectorAll("#dependenceButtons button").forEach(btn => btn.classList.toggle("selected", selectedDependence === btn.textContent));
+                document.getElementById("dependence").value = selectedDependence;
+
+                selectedSupportOutsideMtg = data.selectedSupportOutsideMtg || "";
+                document.querySelectorAll("#supportOutsideMtgButtons button").forEach(btn => btn.classList.toggle("selected", selectedSupportOutsideMtg === btn.textContent));
+                document.getElementById("supportOutsideMtg").value = selectedSupportOutsideMtg;
+
+                selectedCommunicationFrequency = data.selectedCommunicationFrequency || "";
+                document.querySelectorAll("#communicationFrequencyButtons button").forEach(btn => btn.classList.toggle("selected", selectedCommunicationFrequency === btn.textContent));
+                document.getElementById("communicationFrequency").value = selectedCommunicationFrequency;
+                // ▲
+
+                // 共有内容（MEO）
+                if (currentType === "MEO" && data.selectedSharedContents) {
+                    selectedSharedContents = Array.isArray(data.selectedSharedContents) ? data.selectedSharedContents : [];
+                    document.querySelectorAll("#sharedContentButtons button").forEach(btn => btn.classList.toggle("selected", selectedSharedContents.includes(btn.textContent)));
+                    document.getElementById("sharedContent").value = selectedSharedContents.join("、");
+                } else if (currentType === "MEO") {
+                    selectedSharedContents = [];
+                    document.getElementById("sharedContent").value = "";
+                    document.querySelectorAll("#sharedContentButtons button").forEach(btn => btn.classList.remove("selected"));
+                }
+
+                // クロスセル
+                if (data.crosssellSelections) {
+                    selectedCrosssellChecks = { ...data.crosssellSelections };
+                    setupCrosssellCheckButtons();
+                } else {
+                    selectedCrosssellChecks = {}; crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
+                    setupCrosssellCheckButtons();
+                }
+            } catch (e) {
+                console.error("データ復元エラー:", e);
                 resetFields();
             }
         }
@@ -1168,86 +993,77 @@
             try {
                 let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
                 if (!savedData[storeName]) savedData[storeName] = {};
-        
-                const inputFields = ["personality", "wAcceptance", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate"];
+
+                const inputFields = ["personality", "wAcceptance", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
                 inputFields.forEach(field => {
-                    const element = document.getElementById(field);
-                    if (element) {
-                        savedData[storeName][field] = element.value;
-                    }
+                    const el = document.getElementById(field);
+                    if (el) savedData[storeName][field] = el.value;
                 });
-        
+
                 if (selectedType === "MEO") {
                     const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
                     meoFields.forEach(field => {
-                        const element = document.getElementById(field);
-                        if (element) {
-                            savedData[storeName][field] = element.value;
-                        }
+                        const el = document.getElementById(field);
+                        if (el) savedData[storeName][field] = el.value;
                     });
                 }
-        
+
                 savedData[storeName].selectedPersonalities = [...selectedPersonalities];
                 savedData[storeName].selectedWAcceptance = selectedWAcceptance;
                 savedData[storeName].selectedUpdateReading = selectedUpdateReading;
                 savedData[storeName].selectedRelationship = selectedRelationship;
                 savedData[storeName].selectedEffectiveness = selectedEffectiveness;
-        
+
+                // ▼追加：3項目の選択状態を保存
+                savedData[storeName].selectedDependence = selectedDependence;
+                savedData[storeName].selectedSupportOutsideMtg = selectedSupportOutsideMtg;
+                savedData[storeName].selectedCommunicationFrequency = selectedCommunicationFrequency;
+                // ▲
+
                 if (selectedType === "MEO") {
                     savedData[storeName].selectedSharedContents = [...selectedSharedContents];
                 }
-                
-                savedData[storeName].crosssellSelections = {...selectedCrosssellChecks};
-        
+
+                savedData[storeName].crosssellSelections = { ...selectedCrosssellChecks };
                 localStorage.setItem("storeData", JSON.stringify(savedData));
                 return true;
-            } catch (error) {
-                console.error("データ保存中にエラーが発生しました:", error);
+            } catch (e) {
+                console.error("データ保存エラー:", e);
                 return false;
             }
         }
 
         function resetFields() {
-            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate"];
-            inputFields.forEach(field => {
-                const element = document.getElementById(field);
-                if (element) {
-                    element.value = "";
-                }
-            });
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
+            inputFields.forEach(field => { const el = document.getElementById(field); if (el) el.value = ""; });
 
-            selectedPersonalities = [];
-            const personalityButtons = document.querySelectorAll("#personalityButtons button");
-            personalityButtons.forEach(button => button.classList.remove("selected"));
+            selectedPersonalities = []; document.querySelectorAll("#personalityButtons button").forEach(b => b.classList.remove("selected"));
+            selectedWAcceptance = ""; document.querySelectorAll("#wAcceptanceButtons button").forEach(b => b.classList.remove("selected"));
+            selectedUpdateReading = ""; document.querySelectorAll("#updateReadingButtons button").forEach(b => b.classList.remove("selected"));
+            selectedRelationship = ""; document.querySelectorAll("#relationshipButtons button").forEach(b => b.classList.remove("selected"));
+            selectedEffectiveness = ""; document.querySelectorAll("#effectivenessButtons button").forEach(b => b.classList.remove("selected"));
 
-            selectedWAcceptance = "";
-            const wAcceptanceButtons = document.querySelectorAll("#wAcceptanceButtons button");
-            wAcceptanceButtons.forEach(button => button.classList.remove("selected"));
+            // ▼追加：3項目のリセット
+            selectedDependence = ""; document.querySelectorAll("#dependenceButtons button").forEach(b => b.classList.remove("selected"));
+            selectedSupportOutsideMtg = ""; document.querySelectorAll("#supportOutsideMtgButtons button").forEach(b => b.classList.remove("selected"));
+            selectedCommunicationFrequency = ""; document.querySelectorAll("#communicationFrequencyButtons button").forEach(b => b.classList.remove("selected"));
+            // ▲
 
-            selectedUpdateReading = "";
-            const updateReadingButtons = document.querySelectorAll("#updateReadingButtons button");
-            updateReadingButtons.forEach(button => button.classList.remove("selected"));
-
-            selectedRelationship = "";
-            const relationshipButtons = document.querySelectorAll("#relationshipButtons button");
-            relationshipButtons.forEach(button => button.classList.remove("selected"));
-
-            selectedEffectiveness = "";
-            const effectivenessButtons = document.querySelectorAll("#effectivenessButtons button");
-            effectivenessButtons.forEach(button => button.classList.remove("selected"));
-
-            selectedSharedContents = [];
-            const sharedContentButtons = document.querySelectorAll("#sharedContentButtons button");
-            sharedContentButtons.forEach(button => button.classList.remove("selected"));
-
-            selectedCrosssellChecks = {};
-            crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
+            selectedSharedContents = []; document.querySelectorAll("#sharedContentButtons button").forEach(b => b.classList.remove("selected"));
+            selectedCrosssellChecks = {}; crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
             setupCrosssellCheckButtons();
+        }
+
+        function updateCrosssellCheckHiddenField() {
+            let text = Object.entries(selectedCrosssellChecks)
+                .filter(([_, status]) => status !== "")
+                .map(([item, status]) => `${item}：${status}`)
+                .join("、\n");
+            document.getElementById("crosssellCheckSelected").value = text;
         }
 
         function copyToClipboard() {
             updateCrosssellCheckHiddenField();
-
             const storeName = document.getElementById("storeName").value;
             const mtgDate = document.getElementById("mtgDate").value;
             const personality = document.getElementById("personality").value;
@@ -1255,6 +1071,13 @@
             const updateReading = document.getElementById("updateReadingStatus").value;
             const relationship = document.getElementById("relationshipValue").value;
             const effectiveness = document.getElementById("effectivenessRealization").value;
+
+            // ▼追加：3項目の取得
+            const dependence = document.getElementById("dependence").value;
+            const supportOutsideMtg = document.getElementById("supportOutsideMtg").value;
+            const communicationFrequency = document.getElementById("communicationFrequency").value;
+            // ▲
+
             const notes = document.getElementById("notes").value;
             const changes = document.getElementById("changes").value;
             const mtgContent = document.getElementById("mtgContent").value;
@@ -1273,6 +1096,9 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
+依存度：${dependence}
+MTG外対応：${supportOutsideMtg}
+やり取り頻度：${communicationFrequency}
 備考：${notes}
 
 ◆修正・変更・追加設定◆
@@ -1303,6 +1129,9 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
+依存度：${dependence}
+MTG外対応：${supportOutsideMtg}
+やり取り頻度：${communicationFrequency}
 
 ◆修正・変更・追加設定◆
 ${changes}
@@ -1333,9 +1162,7 @@ ${crosssellNotes}`;
                     const copyMessage = document.getElementById("copyMessage");
                     copyMessage.classList.add("visible");
                     setTimeout(() => copyMessage.classList.remove("visible"), 2000);
-                }).catch(err => {
-                    console.error("コピーに失敗しました: ", err);
-                });
+                }).catch(err => console.error("コピーに失敗しました: ", err));
             }
         }
     </script>
