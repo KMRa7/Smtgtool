@@ -482,11 +482,11 @@
                 <div class="tag-container" id="effectivenessButtons"></div>
             </div>
 
-            <!-- ▼ご要望の3項目（〇×ボタンで操作可能） -->
-            <div class="form-group">
-                <label for="dependence">依存度</label>
-                <input type="text" id="dependence" class="readonly-input" readonly>
-                <div class="tag-container" id="dependenceButtons"></div>
+            <!-- MTG依存度（MEOのみ表示） -->
+            <div class="form-group" id="mtgDependenceField" style="display: none;">
+                <label for="mtgDependence">MTG依存度</label>
+                <input type="text" id="mtgDependence" class="readonly-input" readonly>
+                <div class="tag-container" id="mtgDependenceButtons"></div>
             </div>
 
             <div class="form-group">
@@ -500,7 +500,6 @@
                 <input type="text" id="communicationFrequency" class="readonly-input" readonly>
                 <div class="tag-container" id="communicationFrequencyButtons"></div>
             </div>
-            <!-- ▲ここまで -->
 
             <div class="form-group">
                 <label for="notes">備考</label>
@@ -571,11 +570,10 @@
         const relationshipOptions = ["〇:仲良くなれている", "✕:仲良くなれていない"];
         const effectivenessOptions = ["〇:成果(集客・新規など)を感じている", "✕:反応がない、実感なし"];
 
-        // ▼ご要望の3項目（〇×）
-        const dependenceOptions = ["〇", "×"];
+        // MTG依存度（〇×）
+        const mtgDependenceOptions = ["〇", "×"];
         const supportOutsideMtgOptions = ["〇", "×"];
         const communicationFrequencyOptions = ["〇", "×"];
-        // ▲
 
         const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス", "フィフティ"];
         const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
@@ -598,11 +596,10 @@
         let selectedCrosssellChecks = {};
         let selectedSharedContents = [];
 
-        // ▼追加：選択状態を保持
-        let selectedDependence = "";
+        // 選択状態を保持
+        let selectedMtgDependence = "";
         let selectedSupportOutsideMtg = "";
         let selectedCommunicationFrequency = "";
-        // ▲
 
         document.addEventListener("DOMContentLoaded", function () {
             setupPersonalityButtons();
@@ -612,11 +609,10 @@
             setupEffectivenessButtons();
             setupSharedContentButtons();
 
-            // ▼追加：3項目のセットアップ
-            setupDependenceButtons();
+            // 3項目のセットアップ
+            setupMtgDependenceButtons();
             setupSupportOutsideMtgButtons();
             setupCommunicationFrequencyButtons();
-            // ▲
 
             setupCrosssellCheckButtons();
             setupStoreDataHandling();
@@ -632,11 +628,13 @@
                 document.querySelector(".line").classList.add("active");
                 document.getElementById("meoFields").style.display = "none";
                 document.getElementById("meoMtgField").style.display = "none";
+                document.getElementById("mtgDependenceField").style.display = "none"; // LINEでは非表示
                 document.getElementById("contentTitle").textContent = "MTG内容";
             } else if (type === "MEO") {
                 document.querySelector(".meo").classList.add("active");
                 document.getElementById("meoFields").style.display = "block";
                 document.getElementById("meoMtgField").style.display = "block";
+                document.getElementById("mtgDependenceField").style.display = "block"; // MEOでは表示
                 document.getElementById("contentTitle").textContent = "MTG内容";
             }
             selectedType = type;
@@ -755,25 +753,25 @@
             });
         }
 
-        // ▼新規：依存度
-        function setupDependenceButtons() {
-            const c = document.getElementById("dependenceButtons");
+        // MTG依存度
+        function setupMtgDependenceButtons() {
+            const c = document.getElementById("mtgDependenceButtons");
             c.innerHTML = "";
-            dependenceOptions.forEach(option => {
+            mtgDependenceOptions.forEach(option => {
                 const b = document.createElement("button");
                 b.textContent = option; b.className = "tag";
                 b.onclick = function () {
                     Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedDependence === option) { selectedDependence = ""; b.classList.remove("selected"); }
-                    else { selectedDependence = option; b.classList.add("selected"); }
-                    document.getElementById("dependence").value = selectedDependence;
+                    if (selectedMtgDependence === option) { selectedMtgDependence = ""; b.classList.remove("selected"); }
+                    else { selectedMtgDependence = option; b.classList.add("selected"); }
+                    document.getElementById("mtgDependence").value = selectedMtgDependence;
                     const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
                 };
                 c.appendChild(b);
             });
         }
 
-        // ▼新規：MTG外対応
+        // MTG外対応
         function setupSupportOutsideMtgButtons() {
             const c = document.getElementById("supportOutsideMtgButtons");
             c.innerHTML = "";
@@ -791,7 +789,7 @@
             });
         }
 
-        // ▼新規：やり取り頻度
+        // やり取り頻度
         function setupCommunicationFrequencyButtons() {
             const c = document.getElementById("communicationFrequencyButtons");
             c.innerHTML = "";
@@ -808,7 +806,6 @@
                 c.appendChild(b);
             });
         }
-        // ▲ここまで追加
 
         function setupCrosssellCheckButtons() {
             const container = document.getElementById("crosssellCheckGroup");
@@ -877,7 +874,7 @@
 
         function setupStoreDataHandling() {
             const storeNameInput = document.getElementById("storeName");
-            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate", "mtgDependence", "supportOutsideMtg", "communicationFrequency"];
             storeNameInput.addEventListener("input", function () {
                 const storeName = this.value.trim();
                 if (storeName) {
@@ -909,11 +906,11 @@
                 const data = savedData[storeName];
                 const currentType = forceType || selectedType || "LINE";
 
-                const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
+                const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "supportOutsideMtg", "communicationFrequency"];
                 commonFields.forEach(field => { const el = document.getElementById(field); if (el && data[field] !== undefined) el.value = data[field]; });
 
                 if (currentType === "MEO") {
-                    const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
+                    const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent", "mtgDependence"];
                     meoFields.forEach(field => { const el = document.getElementById(field); if (el && data[field] !== undefined) el.value = data[field]; });
                 }
 
@@ -950,19 +947,28 @@
                 document.querySelectorAll("#effectivenessButtons button").forEach(btn => btn.classList.toggle("selected", selectedEffectiveness === btn.textContent));
                 document.getElementById("effectivenessRealization").value = selectedEffectiveness;
 
-                // ▼追加：依存度／MTG外対応／やり取り頻度
-                selectedDependence = data.selectedDependence || "";
-                document.querySelectorAll("#dependenceButtons button").forEach(btn => btn.classList.toggle("selected", selectedDependence === btn.textContent));
-                document.getElementById("dependence").value = selectedDependence;
+                // MTG依存度（MEOのみ）
+                if (currentType === "MEO") {
+                    selectedMtgDependence = data.selectedMtgDependence || "";
+                    document.querySelectorAll("#mtgDependenceButtons button").forEach(btn => btn.classList.toggle("selected", selectedMtgDependence === btn.textContent));
+                    document.getElementById("mtgDependence").value = selectedMtgDependence;
+                } else {
+                    selectedMtgDependence = "";
+                    if (document.getElementById("mtgDependence")) {
+                        document.getElementById("mtgDependence").value = "";
+                    }
+                    document.querySelectorAll("#mtgDependenceButtons button").forEach(btn => btn.classList.remove("selected"));
+                }
 
+                // MTG外対応
                 selectedSupportOutsideMtg = data.selectedSupportOutsideMtg || "";
                 document.querySelectorAll("#supportOutsideMtgButtons button").forEach(btn => btn.classList.toggle("selected", selectedSupportOutsideMtg === btn.textContent));
                 document.getElementById("supportOutsideMtg").value = selectedSupportOutsideMtg;
 
+                // やり取り頻度
                 selectedCommunicationFrequency = data.selectedCommunicationFrequency || "";
                 document.querySelectorAll("#communicationFrequencyButtons button").forEach(btn => btn.classList.toggle("selected", selectedCommunicationFrequency === btn.textContent));
                 document.getElementById("communicationFrequency").value = selectedCommunicationFrequency;
-                // ▲
 
                 // 共有内容（MEO）
                 if (currentType === "MEO" && data.selectedSharedContents) {
@@ -994,14 +1000,14 @@
                 let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
                 if (!savedData[storeName]) savedData[storeName] = {};
 
-                const inputFields = ["personality", "wAcceptance", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
+                const inputFields = ["personality", "wAcceptance", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "supportOutsideMtg", "communicationFrequency"];
                 inputFields.forEach(field => {
                     const el = document.getElementById(field);
                     if (el) savedData[storeName][field] = el.value;
                 });
 
                 if (selectedType === "MEO") {
-                    const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent"];
+                    const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent", "mtgDependence"];
                     meoFields.forEach(field => {
                         const el = document.getElementById(field);
                         if (el) savedData[storeName][field] = el.value;
@@ -1014,11 +1020,13 @@
                 savedData[storeName].selectedRelationship = selectedRelationship;
                 savedData[storeName].selectedEffectiveness = selectedEffectiveness;
 
-                // ▼追加：3項目の選択状態を保存
-                savedData[storeName].selectedDependence = selectedDependence;
+                // MTG依存度（MEOのみ保存）
+                if (selectedType === "MEO") {
+                    savedData[storeName].selectedMtgDependence = selectedMtgDependence;
+                }
+                
                 savedData[storeName].selectedSupportOutsideMtg = selectedSupportOutsideMtg;
                 savedData[storeName].selectedCommunicationFrequency = selectedCommunicationFrequency;
-                // ▲
 
                 if (selectedType === "MEO") {
                     savedData[storeName].selectedSharedContents = [...selectedSharedContents];
@@ -1034,7 +1042,7 @@
         }
 
         function resetFields() {
-            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate", "dependence", "supportOutsideMtg", "communicationFrequency"];
+            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate", "mtgDependence", "supportOutsideMtg", "communicationFrequency"];
             inputFields.forEach(field => { const el = document.getElementById(field); if (el) el.value = ""; });
 
             selectedPersonalities = []; document.querySelectorAll("#personalityButtons button").forEach(b => b.classList.remove("selected"));
@@ -1043,11 +1051,10 @@
             selectedRelationship = ""; document.querySelectorAll("#relationshipButtons button").forEach(b => b.classList.remove("selected"));
             selectedEffectiveness = ""; document.querySelectorAll("#effectivenessButtons button").forEach(b => b.classList.remove("selected"));
 
-            // ▼追加：3項目のリセット
-            selectedDependence = ""; document.querySelectorAll("#dependenceButtons button").forEach(b => b.classList.remove("selected"));
+            // 3項目のリセット
+            selectedMtgDependence = ""; document.querySelectorAll("#mtgDependenceButtons button").forEach(b => b.classList.remove("selected"));
             selectedSupportOutsideMtg = ""; document.querySelectorAll("#supportOutsideMtgButtons button").forEach(b => b.classList.remove("selected"));
             selectedCommunicationFrequency = ""; document.querySelectorAll("#communicationFrequencyButtons button").forEach(b => b.classList.remove("selected"));
-            // ▲
 
             selectedSharedContents = []; document.querySelectorAll("#sharedContentButtons button").forEach(b => b.classList.remove("selected"));
             selectedCrosssellChecks = {}; crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
@@ -1072,11 +1079,10 @@
             const relationship = document.getElementById("relationshipValue").value;
             const effectiveness = document.getElementById("effectivenessRealization").value;
 
-            // ▼追加：3項目の取得
-            const dependence = document.getElementById("dependence").value;
+            // 3項目の取得
+            const mtgDependence = selectedType === "MEO" ? document.getElementById("mtgDependence").value : "";
             const supportOutsideMtg = document.getElementById("supportOutsideMtg").value;
             const communicationFrequency = document.getElementById("communicationFrequency").value;
-            // ▲
 
             const notes = document.getElementById("notes").value;
             const changes = document.getElementById("changes").value;
@@ -1096,7 +1102,6 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
-依存度：${dependence}
 MTG外対応：${supportOutsideMtg}
 やり取り頻度：${communicationFrequency}
 備考：${notes}
@@ -1129,7 +1134,7 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
-依存度：${dependence}
+MTG依存度：${mtgDependence}
 MTG外対応：${supportOutsideMtg}
 やり取り頻度：${communicationFrequency}
 
