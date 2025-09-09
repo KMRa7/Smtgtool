@@ -481,8 +481,16 @@
                 <input type="text" id="effectivenessRealization" class="readonly-input" readonly>
                 <div class="tag-container" id="effectivenessButtons"></div>
             </div>
-
-            <!-- MTG依存度（MEOのみ表示） -->
+            
+            <!-- 変更後：LINEとMEOで別フィールド -->
+            <!-- LINE用依存度フィールド -->
+            <div class="form-group" id="lineDependenceField" style="display: none;">
+                <label for="dependence">依存度</label>
+                <input type="text" id="dependence" class="readonly-input" readonly>
+                <div class="tag-container" id="dependenceButtons"></div>
+            </div>
+            
+            <!-- MEO用MTG依存度フィールド -->
             <div class="form-group" id="mtgDependenceField" style="display: none;">
                 <label for="mtgDependence">MTG依存度</label>
                 <input type="text" id="mtgDependence" class="readonly-input" readonly>
@@ -628,13 +636,15 @@
                 document.querySelector(".line").classList.add("active");
                 document.getElementById("meoFields").style.display = "none";
                 document.getElementById("meoMtgField").style.display = "none";
-                document.getElementById("mtgDependenceField").style.display = "none"; // LINEでは非表示
+                document.getElementById("lineDependenceField").style.display = "block"; // LINE用依存度表示
+                document.getElementById("mtgDependenceField").style.display = "none"; // MEO用MTG依存度非表示
                 document.getElementById("contentTitle").textContent = "MTG内容";
             } else if (type === "MEO") {
                 document.querySelector(".meo").classList.add("active");
                 document.getElementById("meoFields").style.display = "block";
                 document.getElementById("meoMtgField").style.display = "block";
-                document.getElementById("mtgDependenceField").style.display = "block"; // MEOでは表示
+                document.getElementById("lineDependenceField").style.display = "none"; // LINE用依存度非表示
+                document.getElementById("mtgDependenceField").style.display = "block"; // MEO用MTG依存度表示
                 document.getElementById("contentTitle").textContent = "MTG内容";
             }
             selectedType = type;
@@ -1102,6 +1112,7 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
+依存度：${dependence}
 MTG外対応：${supportOutsideMtg}
 やり取り頻度：${communicationFrequency}
 備考：${notes}
@@ -1134,7 +1145,7 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
-MTG依存度：${mtgDependence}
+MTG依存度：${dependence}
 MTG外対応：${supportOutsideMtg}
 やり取り頻度：${communicationFrequency}
 
