@@ -1162,75 +1162,75 @@
           let outputText = "";
         
           if (selectedType === "LINE") {
-            outputText = `L【サポートMTG】
-        店舗名：${storeName}
-        日付：${mtgDate}
-        人柄：${personality}
-        W受ですか?：${wAcceptance}
-        更新ヨミ：${updateReading}
-        関係値：${relationship}
-        効果実感：${effectiveness}
-        依存度：${lineDependence}
-        MTG外対応：${supportOutsideMtg}
-        やり取り頻度：${communicationFrequency}
-        備考：${notes}
-        
-        ◆修正・変更・追加設定◆
-        ${changes}
-        
-        ◆MTG内容◆
-        ${mtgContent}
-        
-        ◆次回予定◆
-        ${nextPlan}
-        
-        ◆クロスセル内容◆
-        ${checkSelected}
-        
-        ◆クロスセル備考◆
-        ${crosssellNotes}`;
-          } else if (selectedType === "MEO") {
-            const reviewCount = document.getElementById("reviewCount").value;
-            const sharedContent = document.getElementById("sharedContent").value;
-            const surveyCount = document.getElementById("surveyCount").value;
-            const searchRank = document.getElementById("searchRank").value;
-        
-            // ★ MEOは MTG依存度 を正しく出力
-            outputText = `M【サポートMTG】
-        店舗名：${storeName}
-        日付：${mtgDate}
-        人柄：${personality}
-        W受ですか?：${wAcceptance}
-        更新ヨミ：${updateReading}
-        関係値：${relationship}
-        効果実感：${effectiveness}
-        MTG依存度：${mtgDependence}
-        MTG外対応：${supportOutsideMtg}
-        やり取り頻度：${communicationFrequency}
-        
-        ◆修正・変更・追加設定◆
-        ${changes}
-        
-        ◆MTG内容◆
-        ${mtgContent}
-        
-        ◆顧客共有内容◆
-        ${sharedContent}
-        
-        ◆次回予定◆
-        ${nextPlan}
-        
-        ◆現状ステータス◆
-        ・クチコミ数：${reviewCount}
-        ・アンケート数：${surveyCount}
-        ・検索順位：${searchRank}
-        
-        ◆クロスセル内容◆
-        ${checkSelected}
-        
-        ◆クロスセル備考◆
-        ${crosssellNotes}`;
-          }
+outputText = `L【サポートMTG】
+店舗名：${storeName}
+日付：${mtgDate}
+人柄：${personality}
+W受ですか?：${wAcceptance}
+更新ヨミ：${updateReading}
+関係値：${relationship}
+効果実感：${effectiveness}
+依存度：${lineDependence}
+MTG外対応：${supportOutsideMtg}
+やり取り頻度：${communicationFrequency}
+備考：${notes}
+
+◆修正・変更・追加設定◆
+${changes}
+
+◆MTG内容◆
+${mtgContent}
+
+◆次回予定◆
+${nextPlan}
+
+◆クロスセル内容◆
+${checkSelected}
+
+◆クロスセル備考◆
+${crosssellNotes}`;
+} else if (selectedType === "MEO") {
+const reviewCount = document.getElementById("reviewCount").value;
+const sharedContent = document.getElementById("sharedContent").value;
+const surveyCount = document.getElementById("surveyCount").value;
+const searchRank = document.getElementById("searchRank").value;
+
+// ★ MEOは MTG依存度 を正しく出力
+outputText = `M【サポートMTG】
+店舗名：${storeName}
+日付：${mtgDate}
+人柄：${personality}
+W受ですか?：${wAcceptance}
+更新ヨミ：${updateReading}
+関係値：${relationship}
+効果実感：${effectiveness}
+MTG依存度：${mtgDependence}
+MTG外対応：${supportOutsideMtg}
+やり取り頻度：${communicationFrequency}
+
+◆修正・変更・追加設定◆
+${changes}
+
+◆MTG内容◆
+${mtgContent}
+
+◆顧客共有内容◆
+${sharedContent}
+
+◆次回予定◆
+${nextPlan}
+
+◆現状ステータス◆
+・クチコミ数：${reviewCount}
+・アンケート数：${surveyCount}
+・検索順位：${searchRank}
+
+◆クロスセル内容◆
+${checkSelected}
+
+◆クロスセル備考◆
+${crosssellNotes}`;
+}
         
           if (outputText) {
             navigator.clipboard.writeText(outputText).then(() => {
