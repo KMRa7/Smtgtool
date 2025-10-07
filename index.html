@@ -1,1168 +1,877 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>サポートMTGツール</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4361ee;
-            --primary-light: #4895ef;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --info: #4895ef;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --gray-light: #ced4da;
-            --gray-dark: #343a40;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
-            background-color: #f5f7fa;
-            color: var(--dark);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            border-radius: var(--border-radius);
-            margin-bottom: 30px;
-            box-shadow: var(--box-shadow);
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            color: var(--primary);
-            border-left: 4px solid var(--primary);
-            padding-left: 10px;
-            margin: 25px 0 15px;
-        }
-
-        .tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-        }
-
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 15px;
-            background-color: white;
-            color: var(--gray-dark);
-            font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tab.line {
-            border-right: 1px solid var(--gray-light);
-        }
-
-        .tab.line::before,
-        .tab.meo::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            transform: translateY(-100%);
-            transition: var(--transition);
-        }
-
-        .tab.line::before {
-            background-color: #06C755;
-        }
-
-        .tab.meo::before {
-            background-color: var(--primary);
-        }
-
-        .tab.active.line {
-            color: #06C755;
-        }
-
-        .tab.active.meo {
-            color: var(--primary);
-        }
-
-        .tab.active::before {
-            transform: translateY(0);
-        }
-
-        .tab i {
-            margin-right: 8px;
-        }
-
-        .form-container {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: var(--box-shadow);
-            margin-bottom: 30px;
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--gray-dark);
-        }
-
-        input[type="text"],
-        input[type="date"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--gray-light);
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus,
-        input[type="date"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        input[type="date"] {
-            background-color: white;
-            color: var(--gray-dark);
-            padding: 12px 15px;
-            cursor: pointer;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            background-color: var(--primary);
-            border-radius: 4px;
-            padding: 3px;
-            cursor: pointer;
-            filter: invert(1);
-            margin-left: 10px;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator:hover {
-            background-color: var(--primary-light);
-        }
-
-        .date-input-wrapper {
-            position: relative;
-        }
-
-        .date-input-wrapper::before {
-            content: '\f073';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .date-input-wrapper input[type="date"] {
-            padding-left: 40px;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .readonly-input {
-            background-color: var(--light);
-            cursor: default;
-        }
-
-        .tag-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .tag {
-            background-color: var(--light);
-            border: 1px solid var(--gray-light);
-            color: var(--gray-dark);
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .tag:hover {
-            background-color: #e9ecef;
-        }
-
-        .tag.selected {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .tag.selected:hover {
-            background-color: var(--primary-light);
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            margin: 30px 0 15px;
-            color: var(--primary);
-            font-size: 1.25rem;
-        }
-
-        .section-title::before,
-        .section-title::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .section-title::before {
-            margin-right: 15px;
-        }
-
-        .section-title::after {
-            margin-left: 15px;
-        }
-
-        .crosssell-group {
-            margin-bottom: 20px;
-        }
-
-        .crosssell-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .crosssell-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .crosssell-option {
-            background-color: var(--light);
-            border: 1px solid var(--gray-light);
-            color: var(--gray-dark);
-            padding: 6px 10px;
-            border-radius: var(--border-radius);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .crosssell-option:hover {
-            background-color: #e9ecef;
-        }
-
-        .crosssell-option.selected {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: center;
-            box-shadow: var(--box-shadow);
-        }
-
-        .btn:hover {
-            background-color: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-copy {
-            margin: 30px auto;
-            display: block;
-            min-width: 200px;
-        }
-
-        .copy-message {
-            text-align: center;
-            color: var(--success);
-            font-weight: bold;
-            margin-top: 15px;
-            opacity: 0;
-            transition: var(--transition);
-        }
-
-        .copy-message.visible {
-            opacity: 1;
-        }
-
-        .suggestion-container {
-            position: relative;
-        }
-
-        .suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            background: white;
-            border: 1px solid var(--gray-light);
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            box-shadow: var(--box-shadow);
-            z-index: 1000;
-            display: none;
-        }
-
-        .suggestion-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .suggestion-item:not(:last-child) {
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .suggestion-item:hover {
-            background-color: var(--light);
-        }
-
-        @media (max-width: 768px) {
-            .checkbox-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--gray-light);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--gray);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>サポートMTGツール</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee; --primary-light: #4895ef; --secondary: #3f37c9;
+      --success: #4cc9f0; --danger: #f72585; --warning: #f8961e; --info: #4895ef;
+      --light: #f8f9fa; --dark: #212529; --gray: #6c757d; --gray-light: #ced4da; --gray-dark: #343a40;
+      --border-radius: 8px; --box-shadow: 0 4px 6px rgba(0,0,0,0.1); --transition: all .3s ease;
+    }
+    *{ box-sizing: border-box; margin:0; padding:0; }
+    body{ font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif; background:#f5f7fa; color:var(--dark); line-height:1.6; }
+    .container{ max-width: 800px; margin: 0 auto; padding: 20px; }
+    header{ background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; padding:20px 0; text-align:center; border-radius:var(--border-radius); margin-bottom:30px; box-shadow:var(--box-shadow); }
+    h1{ font-size:2rem; font-weight:700; }
+    h2{ font-size:1.5rem; color:var(--primary); border-left:4px solid var(--primary); padding-left:10px; margin:25px 0 15px; }
+    .tabs{ display:flex; margin-bottom:30px; border-radius:var(--border-radius); overflow:hidden; box-shadow:var(--box-shadow); }
+    .tab{ flex:1; text-align:center; padding:15px; background:#fff; color:var(--gray-dark); font-weight:bold; cursor:pointer; transition:var(--transition); border:none; position:relative; overflow:hidden; }
+    .tab.line{ border-right:1px solid var(--gray-light); }
+    .tab.line::before,.tab.meo::before{ content:''; position:absolute; top:0; left:0; width:100%; height:4px; transform:translateY(-100%); transition:var(--transition); }
+    .tab.line::before{ background:#06C755; }
+    .tab.meo::before{ background:var(--primary); }
+    .tab.active.line{ color:#06C755; }
+    .tab.active.meo{ color:var(--primary); }
+    .tab.active::before{ transform:translateY(0); }
+    .tab i{ margin-right:8px; }
+    .form-container{ background:#fff; border-radius:var(--border-radius); padding:30px; box-shadow:var(--box-shadow); margin-bottom:30px; display:none; animation:fadeIn .3s ease-out; }
+    .form-group{ margin-bottom:20px; }
+    label{ display:block; margin-bottom:8px; font-weight:600; color:var(--gray-dark); }
+    input[type="text"], input[type="date"], textarea{
+      width:100%; padding:12px; border:1px solid var(--gray-light); border-radius:var(--border-radius); font-size:1rem; transition:var(--transition); font-family:inherit;
+    }
+    input[type="text"]:focus, input[type="date"]:focus, textarea:focus{
+      outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(67,97,238,.2);
+    }
+    input[type="date"]{ background:#fff; color:var(--gray-dark); padding:12px 15px; cursor:pointer; }
+    input[type="date"]::-webkit-calendar-picker-indicator{ background:var(--primary); border-radius:4px; padding:3px; cursor:pointer; filter:invert(1); margin-left:10px; }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover{ background:var(--primary-light); }
+    .date-input-wrapper{ position:relative; }
+    .date-input-wrapper::before{ content:'\f073'; font-family:'Font Awesome 6 Free'; font-weight:900; position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--primary); pointer-events:none; z-index:1; }
+    .date-input-wrapper input[type="date"]{ padding-left:40px; }
+    textarea{ min-height:100px; resize:vertical; }
+    .readonly-input{ background:var(--light); cursor:default; }
+    .tag-container{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .tag{ background:var(--light); border:1px solid var(--gray-light); color:var(--gray-dark); padding:8px 12px; border-radius:20px; font-size:.9rem; cursor:pointer; transition:var(--transition); }
+    .tag:hover{ background:#e9ecef; }
+    .tag.selected{ background:var(--primary); color:#fff; border-color:var(--primary); }
+    .tag.selected:hover{ background:var(--primary-light); }
+    .section-title{ display:flex; align-items:center; margin:30px 0 15px; color:var(--primary); font-size:1.25rem; }
+    .section-title::before,.section-title::after{ content:''; flex:1; border-bottom:1px solid var(--gray-light); }
+    .section-title::before{ margin-right:15px; } .section-title::after{ margin-left:15px; }
+    .crosssell-group{ margin-bottom:20px; }
+    .crosssell-title{ font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+    .crosssell-options{ display:flex; flex-wrap:wrap; gap:8px; }
+    .crosssell-option{ background:var(--light); border:1px solid var(--gray-light); color:var(--gray-dark); padding:6px 10px; border-radius:var(--border-radius); font-size:.9rem; cursor:pointer; transition:var(--transition); }
+    .crosssell-option:hover{ background:#e9ecef; }
+    .crosssell-option.selected{ background:var(--primary); color:#fff; border-color:var(--primary); }
+    .btn{ display:inline-block; padding:12px 20px; background:var(--primary); color:#fff; border:none; border-radius:var(--border-radius); font-size:1rem; font-weight:600; cursor:pointer; transition:var(--transition); text-align:center; box-shadow:var(--box-shadow); }
+    .btn:hover{ background:var(--primary-light); transform:translateY(-2px); box-shadow:0 6px 12px rgba(0,0,0,.15); }
+    .btn-copy{ margin:30px auto; display:block; min-width:200px; }
+    .copy-message{ text-align:center; color:var(--success); font-weight:bold; margin-top:15px; opacity:0; transition:var(--transition); }
+    .copy-message.visible{ opacity:1; }
+    .suggestion-container{ position:relative; }
+    .suggestions{ position:absolute; top:100%; left:0; width:100%; max-height:200px; overflow-y:auto; background:#fff; border:1px solid var(--gray-light); border-radius:0 0 var(--border-radius) var(--border-radius); box-shadow:var(--box-shadow); z-index:1000; display:none; }
+    .suggestion-item{ padding:10px 15px; cursor:pointer; transition:var(--transition); }
+    .suggestion-item:not(:last-child){ border-bottom:1px solid var(--gray-light); }
+    .suggestion-item:hover{ background:var(--light); }
+    @media (max-width:768px){ .checkbox-grid{ grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); } }
+    ::-webkit-scrollbar{ width:8px; height:8px; }
+    ::-webkit-scrollbar-track{ background:#f1f1f1; border-radius:10px; }
+    ::-webkit-scrollbar-thumb{ background:var(--gray-light); border-radius:10px; }
+    ::-webkit-scrollbar-thumb:hover{ background:var(--gray); }
+    @keyframes fadeIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <header>
-            <h1>サポートMTGツール</h1>
-        </header>
+  <div class="container">
+    <header><h1>サポートMTGツール</h1></header>
 
-        <div class="tabs">
-            <button class="tab line" onclick="toggleForm('LINE')"><i class="fab fa-line"></i>LINE</button>
-            <button class="tab meo" onclick="toggleForm('MEO')"><i class="fas fa-store"></i>MEO</button>
-        </div>
-
-        <div id="formContainer" class="form-container">
-            <div class="form-group">
-                <label for="storeName">店舗名</label>
-                <div class="suggestion-container">
-                    <input type="text" id="storeName" autocomplete="off" placeholder="店舗名を入力してください">
-                    <div id="suggestions" class="suggestions"></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="mtgDate">日付</label>
-                <div class="date-input-wrapper">
-                    <input type="date" id="mtgDate">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="wAcceptance">W受ですか?</label>
-                <input type="text" id="wAcceptance" class="readonly-input" readonly>
-                <div class="tag-container" id="wAcceptanceButtons"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="personality">人柄</label>
-                <input type="text" id="personality" class="readonly-input" readonly>
-                <div class="tag-container" id="personalityButtons"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="updateReadingStatus">更新ヨミ</label>
-                <input type="text" id="updateReadingStatus" class="readonly-input" readonly>
-                <div class="tag-container" id="updateReadingButtons"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="relationshipValue">関係値</label>
-                <input type="text" id="relationshipValue" class="readonly-input" readonly>
-                <div class="tag-container" id="relationshipButtons"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="effectivenessRealization">効果実感</label>
-                <input type="text" id="effectivenessRealization" class="readonly-input" readonly>
-                <div class="tag-container" id="effectivenessButtons"></div>
-            </div>
-            
-            <!-- 変更後：LINEとMEOで別フィールド -->
-            <!-- LINE用依存度フィールド -->
-            <div class="form-group" id="lineDependenceField" style="display: none;">
-                <label for="dependence">依存度</label>
-                <input type="text" id="dependence" class="readonly-input" readonly>
-                <div class="tag-container" id="dependenceButtons"></div>
-            </div>
-            
-            <!-- MEO用MTG依存度フィールド -->
-            <div class="form-group" id="mtgDependenceField" style="display: none;">
-                <label for="mtgDependence">MTG依存度</label>
-                <input type="text" id="mtgDependence" class="readonly-input" readonly>
-                <div class="tag-container" id="mtgDependenceButtons"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="supportOutsideMtg">MTG外対応</label>
-                <input type="text" id="supportOutsideMtg" class="readonly-input" readonly>
-                <div class="tag-container" id="supportOutsideMtgButtons"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="communicationFrequency">やり取り頻度</label>
-                <input type="text" id="communicationFrequency" class="readonly-input" readonly>
-                <div class="tag-container" id="communicationFrequencyButtons"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="notes">備考</label>
-                <textarea id="notes" placeholder="備考を入力してください"></textarea>
-            </div>
-
-            <h2 class="section-title">修正・変更・追加設定</h2>
-            <div class="form-group">
-                <textarea id="changes" placeholder="修正・変更・追加設定を入力してください"></textarea>
-            </div>
-
-            <h2 class="section-title" id="contentTitle">MTG内容</h2>
-            <div class="form-group">
-                <textarea id="mtgContent" placeholder="MTGの内容を入力してください"></textarea>
-            </div>
-
-            <div id="meoMtgField" style="display: none;">
-                <h2 class="section-title">顧客共有内容</h2>
-                <div class="form-group">
-                    <input type="text" id="sharedContent" class="readonly-input" readonly>
-                    <div class="tag-container" id="sharedContentButtons"></div>
-                </div>
-            </div>
-
-            <h2 class="section-title">次回予定</h2>
-            <div class="form-group">
-                <textarea id="nextPlan" placeholder="次回の予定を入力してください"></textarea>
-            </div>
-
-            <div id="meoFields" style="display: none;">
-                <h2 class="section-title">現状ステータス</h2>
-                <div class="form-group">
-                    <label for="reviewCount">クチコミ数</label>
-                    <input type="text" id="reviewCount" placeholder="例: 25件">
-                </div>
-                <div class="form-group">
-                    <label for="surveyCount">アンケート数</label>
-                    <input type="text" id="surveyCount" placeholder="例: 10件">
-                </div>
-                <div class="form-group">
-                    <label for="searchRank">検索順位</label>
-                    <input type="text" id="searchRank" placeholder="例: 3位">
-                </div>
-            </div>
-
-            <h2 class="section-title">クロスセル内容</h2>
-            <div class="form-group" id="crosssellCheckGroup"></div>
-
-            <h2 class="section-title">クロスセル備考</h2>
-            <div class="form-group">
-                <textarea id="crosssellNotes" placeholder="クロスセルに関する備考を入力してください"></textarea>
-            </div>
-
-            <input type="hidden" id="crosssellCheckSelected">
-
-            <button id="copyButton" class="btn btn-copy" onclick="copyToClipboard()">
-                <i class="fas fa-clipboard"></i> コピーする
-            </button>
-            <div id="copyMessage" class="copy-message">コピーしました！</div>
-        </div>
+    <div class="tabs">
+      <button class="tab line" onclick="toggleForm('LINE')"><i class="fab fa-line"></i>LINE</button>
+      <button class="tab meo" onclick="toggleForm('MEO')"><i class="fas fa-store"></i>MEO</button>
     </div>
 
-    <script>
-        let selectedType = "";
-        const personalityOptions = ["愛想いい", "冷静な方", "わがまま", "ハキハキ系", "落ち着いている", "明るい", "しゃべり", "優しい", "慎重な人", "向上心ある人", "カタコト"];
-        const wAcceptanceOptions = ["はい", "いいえ"];
-        const updateReadingOptions = ["〇", "×"];
-        const relationshipOptions = ["〇:仲良くなれている", "✕:仲良くなれていない"];
-        const effectivenessOptions = ["〇:成果(集客・新規など)を感じている", "✕:反応がない、実感なし"];
+    <div id="formContainer" class="form-container">
+      <div class="form-group">
+        <label for="storeName">店舗名</label>
+        <div class="suggestion-container">
+          <input type="text" id="storeName" autocomplete="off" placeholder="店舗名を入力してください">
+          <div id="suggestions" class="suggestions"></div>
+        </div>
+      </div>
 
-        // MTG依存度（〇×）
-        const lineDependenceOptions = ["〇", "×"];
-        const mtgDependenceOptions = ["〇", "×"];
-        const supportOutsideMtgOptions = ["〇", "×"];
-        const communicationFrequencyOptions = ["〇", "×"];
+      <div class="form-group">
+        <label for="mtgDate">日付</label>
+        <div class="date-input-wrapper"><input type="date" id="mtgDate"></div>
+      </div>
 
-        const crosssellItems = ["WiFi", "電気", "ガス", "携帯", "決済サービス", "フィフティ"];
-        const checkStatuses = ["案内済み(受注)", "案内済み(失注)", "案内まだ", "対応中", "見込み有"];
-        const sharedContentOptions = [
-            "AI運用アシスタント結果",
-            "インサイトクロス分析",
-            "業種別インサイトクロス分析",
-            "キーワード",
-            "キーワード文章",
-            "インスタハッシュタグ",
-            "インスタ注意事項",
-            "アンケートPDF"
-        ];
+      <div class="form-group">
+        <label for="wAcceptance">W受ですか?</label>
+        <input type="text" id="wAcceptance" class="readonly-input" readonly>
+        <div class="tag-container" id="wAcceptanceButtons"></div>
+      </div>
 
-        let selectedPersonalities = [];
-        let selectedWAcceptance = "";
-        let selectedUpdateReading = "";
-        let selectedRelationship = "";
-        let selectedEffectiveness = "";
-        let selectedCrosssellChecks = {};
-        let selectedSharedContents = [];
+      <div class="form-group">
+        <label for="personality">人柄</label>
+        <input type="text" id="personality" class="readonly-input" readonly>
+        <div class="tag-container" id="personalityButtons"></div>
+      </div>
 
-        // 選択状態を保持
-        let selectedLineDependence = "";
-        let selectedMtgDependence = "";
-        let selectedSupportOutsideMtg = "";
-        let selectedCommunicationFrequency = "";
+      <div class="form-group">
+        <label for="updateReadingStatus">更新ヨミ</label>
+        <input type="text" id="updateReadingStatus" class="readonly-input" readonly>
+        <div class="tag-container" id="updateReadingButtons"></div>
+      </div>
 
-        document.addEventListener("DOMContentLoaded", function () {
-            setupPersonalityButtons();
-            setupWAcceptanceButtons();
-            setupUpdateReadingButtons();
-            setupRelationshipButtons();
-            setupEffectivenessButtons();
-            setupSharedContentButtons();
+      <div class="form-group">
+        <label for="relationshipValue">関係値</label>
+        <input type="text" id="relationshipValue" class="readonly-input" readonly>
+        <div class="tag-container" id="relationshipButtons"></div>
+      </div>
 
-            // 3項目のセットアップ
-            setupLineDependenceButtons();
-            setupMtgDependenceButtons();
-            setupSupportOutsideMtgButtons();
-            setupCommunicationFrequencyButtons();
+      <div class="form-group">
+        <label for="effectivenessRealization">効果実感</label>
+        <input type="text" id="effectivenessRealization" class="readonly-input" readonly>
+        <div class="tag-container" id="effectivenessButtons"></div>
+      </div>
 
-            setupCrosssellCheckButtons();
-            setupStoreDataHandling();
-            setupStoreSuggestions();
+      <!-- LINE用：人依存 / システム依存（中央値以下は✕） -->
+      <div id="lineHumanDependenceField" class="form-group" style="display:none;">
+        <label for="humanDependence">人依存（中央値以下は✕）</label>
+        <input type="text" id="humanDependence" class="readonly-input" readonly>
+        <div class="tag-container" id="humanDependenceButtons"></div>
+      </div>
+
+      <div id="lineSystemDependenceField" class="form-group" style="display:none;">
+        <label for="systemDependence">システム依存（中央値以下は✕）</label>
+        <input type="text" id="systemDependence" class="readonly-input" readonly>
+        <div class="tag-container" id="systemDependenceButtons"></div>
+      </div>
+
+      <!-- MEO用：MTG依存度 -->
+      <div class="form-group" id="mtgDependenceField" style="display:none;">
+        <label for="mtgDependence">MTG依存度</label>
+        <input type="text" id="mtgDependence" class="readonly-input" readonly>
+        <div class="tag-container" id="mtgDependenceButtons"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="supportOutsideMtg">MTG外対応</label>
+        <input type="text" id="supportOutsideMtg" class="readonly-input" readonly>
+        <div class="tag-container" id="supportOutsideMtgButtons"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="communicationFrequency">やり取り頻度</label>
+        <input type="text" id="communicationFrequency" class="readonly-input" readonly>
+        <div class="tag-container" id="communicationFrequencyButtons"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">備考</label>
+        <textarea id="notes" placeholder="備考を入力してください"></textarea>
+      </div>
+
+      <h2 class="section-title">修正・変更・追加設定</h2>
+      <div class="form-group"><textarea id="changes" placeholder="修正・変更・追加設定を入力してください"></textarea></div>
+
+      <h2 class="section-title" id="contentTitle">MTG内容</h2>
+      <div class="form-group"><textarea id="mtgContent" placeholder="MTGの内容を入力してください"></textarea></div>
+
+      <div id="meoMtgField" style="display:none;">
+        <h2 class="section-title">顧客共有内容</h2>
+        <div class="form-group">
+          <input type="text" id="sharedContent" class="readonly-input" readonly>
+          <div class="tag-container" id="sharedContentButtons"></div>
+        </div>
+      </div>
+
+      <h2 class="section-title">次回予定</h2>
+      <div class="form-group"><textarea id="nextPlan" placeholder="次回の予定を入力してください"></textarea></div>
+
+      <div id="meoFields" style="display:none;">
+        <h2 class="section-title">現状ステータス</h2>
+        <div class="form-group">
+          <label for="reviewCount">クチコミ数</label>
+          <input type="text" id="reviewCount" placeholder="例: 25件">
+        </div>
+        <div class="form-group">
+          <label for="surveyCount">アンケート数</label>
+          <input type="text" id="surveyCount" placeholder="例: 10件">
+        </div>
+        <div class="form-group">
+          <label for="searchRank">検索順位</label>
+          <input type="text" id="searchRank" placeholder="例: 3位">
+        </div>
+      </div>
+
+      <h2 class="section-title">クロスセル内容</h2>
+      <div class="form-group" id="crosssellCheckGroup"></div>
+
+      <h2 class="section-title">クロスセル備考</h2>
+      <div class="form-group"><textarea id="crosssellNotes" placeholder="クロスセルに関する備考を入力してください"></textarea></div>
+
+      <input type="hidden" id="crosssellCheckSelected">
+      <button id="copyButton" class="btn btn-copy" onclick="copyToClipboard()">
+        <i class="fas fa-clipboard"></i> コピーする
+      </button>
+      <div id="copyMessage" class="copy-message">コピーしました！</div>
+    </div>
+  </div>
+
+  <script>
+    let selectedType = "";
+
+    const personalityOptions = ["愛想いい","冷静な方","わがまま","ハキハキ系","落ち着いている","明るい","しゃべり","優しい","慎重な人","向上心ある人","カタコト"];
+    const wAcceptanceOptions = ["はい","いいえ"];
+    const updateReadingOptions = ["〇","×"];
+    const relationshipOptions = ["〇:仲良くなれている","✕:仲良くなれていない"];
+    const effectivenessOptions = ["〇:成果(集客・新規など)を感じている","✕:反応がない、実感なし"];
+
+    // 依存度（LINE用 2軸）
+    const dependenceOptions = ["〇","×"];
+
+    // MEO用
+    const mtgDependenceOptions = ["〇","×"];
+    const supportOutsideMtgOptions = ["〇","×"];
+    const communicationFrequencyOptions = ["〇","×"];
+    const crosssellItems = ["WiFi","電気","ガス","携帯","決済サービス","フィフティ"];
+    const checkStatuses = ["案内済み(受注)","案内済み(失注)","案内まだ","対応中","見込み有"];
+    const sharedContentOptions = [
+      "AI運用アシスタント結果","インサイトクロス分析","業種別インサイトクロス分析",
+      "キーワード","キーワード文章","インスタハッシュタグ","インスタ注意事項","アンケートPDF"
+    ];
+
+    // 状態
+    let selectedPersonalities = [];
+    let selectedWAcceptance = "";
+    let selectedUpdateReading = "";
+    let selectedRelationship = "";
+    let selectedEffectiveness = "";
+    let selectedCrosssellChecks = {};
+    let selectedSharedContents = [];
+
+    // 追加：LINE依存度（人/システム）
+    let selectedHumanDependence = "";
+    let selectedSystemDependence = "";
+
+    // MEO
+    let selectedMtgDependence = "";
+    let selectedSupportOutsideMtg = "";
+    let selectedCommunicationFrequency = "";
+
+    document.addEventListener("DOMContentLoaded", function(){
+      setupPersonalityButtons();
+      setupWAcceptanceButtons();
+      setupUpdateReadingButtons();
+      setupRelationshipButtons();
+      setupEffectivenessButtons();
+      setupSharedContentButtons();
+
+      // LINE依存度（人・システム）
+      setupHumanDependenceButtons();
+      setupSystemDependenceButtons();
+
+      // MEO/共通
+      setupMtgDependenceButtons();
+      setupSupportOutsideMtgButtons();
+      setupCommunicationFrequencyButtons();
+      setupCrosssellCheckButtons();
+
+      setupStoreDataHandling();
+      setupStoreSuggestions();
+    });
+
+    function toggleForm(type){
+      document.getElementById("formContainer").style.display = "block";
+      document.querySelector(".line").classList.remove("active");
+      document.querySelector(".meo").classList.remove("active");
+
+      if(type === "LINE"){
+        document.querySelector(".line").classList.add("active");
+        document.getElementById("meoFields").style.display = "none";
+        document.getElementById("meoMtgField").style.display = "none";
+
+        // LINE: 人/システム依存を表示
+        document.getElementById("lineHumanDependenceField").style.display = "block";
+        document.getElementById("lineSystemDependenceField").style.display = "block";
+
+        // MEO: MTG依存度は隠す
+        document.getElementById("mtgDependenceField").style.display = "none";
+
+        document.getElementById("contentTitle").textContent = "MTG内容";
+      }else if(type === "MEO"){
+        document.querySelector(".meo").classList.add("active");
+        document.getElementById("meoFields").style.display = "block";
+        document.getElementById("meoMtgField").style.display = "block";
+
+        // LINE: 人/システム依存は隠す
+        document.getElementById("lineHumanDependenceField").style.display = "none";
+        document.getElementById("lineSystemDependenceField").style.display = "none";
+
+        // MEO: MTG依存度を表示
+        document.getElementById("mtgDependenceField").style.display = "block";
+
+        document.getElementById("contentTitle").textContent = "MTG内容";
+      }
+      selectedType = type;
+
+      const storeName = document.getElementById("storeName").value.trim();
+      if(storeName) restoreData(storeName, type);
+    }
+
+    // ====== ボタン生成 ======
+    function setupWAcceptanceButtons(){
+      const c = document.getElementById("wAcceptanceButtons"); c.innerHTML = "";
+      wAcceptanceOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedWAcceptance === option){ selectedWAcceptance=""; b.classList.remove("selected"); }
+          else{ selectedWAcceptance=option; b.classList.add("selected"); }
+          document.getElementById("wAcceptance").value = selectedWAcceptance;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    function setupPersonalityButtons(){
+      const c = document.getElementById("personalityButtons"); c.innerHTML = "";
+      personalityOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          if(selectedPersonalities.includes(option)){
+            selectedPersonalities = selectedPersonalities.filter(p=>p!==option);
+            b.classList.remove("selected");
+          }else{
+            selectedPersonalities.push(option); b.classList.add("selected");
+          }
+          document.getElementById("personality").value = selectedPersonalities.join("、");
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    function setupSharedContentButtons(){
+      const c = document.getElementById("sharedContentButtons"); c.innerHTML = "";
+      sharedContentOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          if(selectedSharedContents.includes(option)){
+            selectedSharedContents = selectedSharedContents.filter(p=>p!==option);
+            b.classList.remove("selected");
+          }else{
+            selectedSharedContents.push(option); b.classList.add("selected");
+          }
+          document.getElementById("sharedContent").value = selectedSharedContents.join("、");
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    function setupUpdateReadingButtons(){
+      const c = document.getElementById("updateReadingButtons"); c.innerHTML = "";
+      updateReadingOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedUpdateReading===option){ selectedUpdateReading=""; b.classList.remove("selected"); }
+          else{ selectedUpdateReading=option; b.classList.add("selected"); }
+          document.getElementById("updateReadingStatus").value = selectedUpdateReading;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    function setupRelationshipButtons(){
+      const c = document.getElementById("relationshipButtons"); c.innerHTML = "";
+      relationshipOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedRelationship===option){ selectedRelationship=""; b.classList.remove("selected"); }
+          else{ selectedRelationship=option; b.classList.add("selected"); }
+          document.getElementById("relationshipValue").value = selectedRelationship;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    function setupEffectivenessButtons(){
+      const c = document.getElementById("effectivenessButtons"); c.innerHTML = "";
+      effectivenessOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedEffectiveness===option){ selectedEffectiveness=""; b.classList.remove("selected"); }
+          else{ selectedEffectiveness=option; b.classList.add("selected"); }
+          document.getElementById("effectivenessRealization").value = selectedEffectiveness;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    // LINE依存度：人
+    function setupHumanDependenceButtons(){
+      const c = document.getElementById("humanDependenceButtons"); c.innerHTML = "";
+      dependenceOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedHumanDependence===option){ selectedHumanDependence=""; b.classList.remove("selected"); }
+          else{ selectedHumanDependence=option; b.classList.add("selected"); }
+          document.getElementById("humanDependence").value = selectedHumanDependence;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    // LINE依存度：システム
+    function setupSystemDependenceButtons(){
+      const c = document.getElementById("systemDependenceButtons"); c.innerHTML = "";
+      dependenceOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedSystemDependence===option){ selectedSystemDependence=""; b.classList.remove("selected"); }
+          else{ selectedSystemDependence=option; b.classList.add("selected"); }
+          document.getElementById("systemDependence").value = selectedSystemDependence;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    // MEO: MTG依存度
+    function setupMtgDependenceButtons(){
+      const c = document.getElementById("mtgDependenceButtons"); c.innerHTML = "";
+      mtgDependenceOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedMtgDependence===option){ selectedMtgDependence=""; b.classList.remove("selected"); }
+          else{ selectedMtgDependence=option; b.classList.add("selected"); }
+          const el = document.getElementById("mtgDependence"); if(el) el.value = selectedMtgDependence;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    // MTG外対応
+    function setupSupportOutsideMtgButtons(){
+      const c = document.getElementById("supportOutsideMtgButtons"); c.innerHTML = "";
+      supportOutsideMtgOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedSupportOutsideMtg===option){ selectedSupportOutsideMtg=""; b.classList.remove("selected"); }
+          else{ selectedSupportOutsideMtg=option; b.classList.add("selected"); }
+          document.getElementById("supportOutsideMtg").value = selectedSupportOutsideMtg;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    // やり取り頻度
+    function setupCommunicationFrequencyButtons(){
+      const c = document.getElementById("communicationFrequencyButtons"); c.innerHTML = "";
+      communicationFrequencyOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option; b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+          if(selectedCommunicationFrequency===option){ selectedCommunicationFrequency=""; b.classList.remove("selected"); }
+          else{ selectedCommunicationFrequency=option; b.classList.add("selected"); }
+          document.getElementById("communicationFrequency").value = selectedCommunicationFrequency;
+          const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
+    // クロスセル
+    function setupCrosssellCheckButtons(){
+      const container = document.getElementById("crosssellCheckGroup"); container.innerHTML = "";
+      crosssellItems.forEach(item=>{
+        const itemGroup = document.createElement("div"); itemGroup.className="crosssell-group";
+        const title = document.createElement("div"); title.className="crosssell-title";
+        title.innerHTML = `<i class="fas fa-tag"></i><span>${item}</span>`;
+        const options = document.createElement("div"); options.className="crosssell-options";
+
+        if(selectedCrosssellChecks[item] === undefined) selectedCrosssellChecks[item] = "";
+
+        checkStatuses.forEach(status=>{
+          const button = document.createElement("button");
+          button.textContent = status; button.className = "crosssell-option";
+          if(selectedCrosssellChecks[item] === status) button.classList.add("selected");
+          button.onclick = function(){
+            if(selectedCrosssellChecks[item] === status){
+              selectedCrosssellChecks[item] = ""; button.classList.remove("selected");
+            }else{
+              Array.from(options.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+              selectedCrosssellChecks[item] = status; button.classList.add("selected");
+            }
+            updateCrosssellCheckHiddenField();
+            const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
+          };
+          options.appendChild(button);
         });
 
-        function toggleForm(type) {
-            document.getElementById("formContainer").style.display = "block";
-            document.querySelector(".line").classList.remove("active");
-            document.querySelector(".meo").classList.remove("active");
+        itemGroup.appendChild(title);
+        itemGroup.appendChild(options);
+        container.appendChild(itemGroup);
+      });
+      updateCrosssellCheckHiddenField();
+    }
 
-            if (type === "LINE") {
-                document.querySelector(".line").classList.add("active");
-                document.getElementById("meoFields").style.display = "none";
-                document.getElementById("meoMtgField").style.display = "none";
-                document.getElementById("lineDependenceField").style.display = "block"; // LINE用依存度表示
-                document.getElementById("mtgDependenceField").style.display = "none"; // MEO用MTG依存度非表示
-                document.getElementById("contentTitle").textContent = "MTG内容";
-            } else if (type === "MEO") {
-                document.querySelector(".meo").classList.add("active");
-                document.getElementById("meoFields").style.display = "block";
-                document.getElementById("meoMtgField").style.display = "block";
-                document.getElementById("lineDependenceField").style.display = "none"; // LINE用依存度非表示
-                document.getElementById("mtgDependenceField").style.display = "block"; // MEO用MTG依存度表示
-                document.getElementById("contentTitle").textContent = "MTG内容";
-            }
-            selectedType = type;
+    // ====== サジェスト ======
+    function updateSuggestions(query){
+      const suggestionsDiv = document.getElementById("suggestions");
+      const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+      const storeNames = Object.keys(savedData);
+      if(storeNames.length === 0){ suggestionsDiv.style.display="none"; return; }
 
-            const storeName = document.getElementById("storeName").value.trim();
-            if (storeName) restoreData(storeName, type);
+      let matchedStores = [];
+      if(query.trim()==="") matchedStores = storeNames.slice(0,10);
+      else matchedStores = storeNames.filter(name=>name.toLowerCase().includes(query.toLowerCase())).slice(0,10);
+
+      if(matchedStores.length>0){
+        suggestionsDiv.innerHTML = "";
+        matchedStores.forEach(store=>{
+          const item = document.createElement("div");
+          item.classList.add("suggestion-item");
+          item.textContent = store;
+          suggestionsDiv.appendChild(item);
+        });
+        suggestionsDiv.style.display="block";
+      }else{
+        suggestionsDiv.style.display="none";
+      }
+    }
+
+    function setupStoreSuggestions(){
+      const storeInput = document.getElementById("storeName");
+      const suggestionsDiv = document.getElementById("suggestions");
+      storeInput.addEventListener("focus", function(){ updateSuggestions(this.value); });
+      storeInput.addEventListener("input", function(){ updateSuggestions(this.value); });
+      document.addEventListener("click", function(e){
+        if(e.target !== storeInput && e.target !== suggestionsDiv) suggestionsDiv.style.display="none";
+      });
+      suggestionsDiv.addEventListener("click", function(e){
+        if(e.target.classList.contains("suggestion-item")){
+          storeInput.value = e.target.textContent;
+          suggestionsDiv.style.display="none";
+          restoreData(storeInput.value.trim());
         }
+      });
+    }
 
-        function setupWAcceptanceButtons() {
-            const c = document.getElementById("wAcceptanceButtons");
-            c.innerHTML = "";
-            wAcceptanceOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedWAcceptance === option) { selectedWAcceptance = ""; b.classList.remove("selected"); }
-                    else { selectedWAcceptance = option; b.classList.add("selected"); }
-                    document.getElementById("wAcceptance").value = selectedWAcceptance;
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
+    // ====== 保存/復元 ======
+    function setupStoreDataHandling(){
+      const storeNameInput = document.getElementById("storeName");
+      const inputFields = [
+        "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
+        "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate",
+        "supportOutsideMtg","communicationFrequency",
+        // 追加：LINE依存度
+        "humanDependence","systemDependence",
+        // MEO
+        "reviewCount","surveyCount","searchRank","sharedContent","mtgDependence"
+      ];
+
+      storeNameInput.addEventListener("input", function(){
+        const storeName = this.value.trim();
+        if(storeName){
+          const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+          if(savedData[storeName]) restoreData(storeName);
+          else resetFields();
+        }else resetFields();
+      });
+
+      storeNameInput.addEventListener("keydown", function(e){
+        if(e.key === "Enter"){
+          const suggestionsDiv = document.getElementById("suggestions");
+          const firstSuggestion = suggestionsDiv.querySelector(".suggestion-item");
+          if(firstSuggestion && suggestionsDiv.style.display!=="none"){
+            this.value = firstSuggestion.textContent;
+            suggestionsDiv.style.display = "none";
+            restoreData(this.value.trim());
+            e.preventDefault();
+          }
         }
+      });
 
-        function setupPersonalityButtons() {
-            const c = document.getElementById("personalityButtons");
-            c.innerHTML = "";
-            personalityOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    if (selectedPersonalities.includes(option)) {
-                        selectedPersonalities = selectedPersonalities.filter(p => p !== option);
-                        b.classList.remove("selected");
-                    } else {
-                        selectedPersonalities.push(option);
-                        b.classList.add("selected");
-                    }
-                    document.getElementById("personality").value = selectedPersonalities.join("、");
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
-        }
+      inputFields.forEach(field=>{
+        const element = document.getElementById(field);
+        if(element) element.addEventListener("input", function(){
+          const storeName = storeNameInput.value.trim();
+          if(storeName) saveData(storeName);
+        });
+      });
+    }
 
-        function setupSharedContentButtons() {
-            const c = document.getElementById("sharedContentButtons");
-            c.innerHTML = "";
-            sharedContentOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    if (selectedSharedContents.includes(option)) {
-                        selectedSharedContents = selectedSharedContents.filter(p => p !== option);
-                        b.classList.remove("selected");
-                    } else {
-                        selectedSharedContents.push(option);
-                        b.classList.add("selected");
-                    }
-                    document.getElementById("sharedContent").value = selectedSharedContents.join("、");
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
-        }
+    function restoreData(storeName, forceType=null){
+      try{
+        const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+        if(!savedData[storeName]){ resetFields(); return; }
 
-        function setupUpdateReadingButtons() {
-            const c = document.getElementById("updateReadingButtons");
-            c.innerHTML = "";
-            updateReadingOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedUpdateReading === option) { selectedUpdateReading = ""; b.classList.remove("selected"); }
-                    else { selectedUpdateReading = option; b.classList.add("selected"); }
-                    document.getElementById("updateReadingStatus").value = selectedUpdateReading;
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
-        }
+        const data = savedData[storeName];
+        const currentType = forceType || selectedType || "LINE";
 
-        function setupRelationshipButtons() {
-            const c = document.getElementById("relationshipButtons");
-            c.innerHTML = "";
-            relationshipOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedRelationship === option) { selectedRelationship = ""; b.classList.remove("selected"); }
-                    else { selectedRelationship = option; b.classList.add("selected"); }
-                    document.getElementById("relationshipValue").value = selectedRelationship;
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
-        }
+        const commonFields = [
+          "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
+          "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate","supportOutsideMtg","communicationFrequency",
+          // 追加
+          "humanDependence","systemDependence"
+        ];
+        commonFields.forEach(field=>{
+          const el = document.getElementById(field);
+          if(el && data[field] !== undefined) el.value = data[field];
+        });
 
-        function setupEffectivenessButtons() {
-            const c = document.getElementById("effectivenessButtons");
-            c.innerHTML = "";
-            effectivenessOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedEffectiveness === option) { selectedEffectiveness = ""; b.classList.remove("selected"); }
-                    else { selectedEffectiveness = option; b.classList.add("selected"); }
-                    document.getElementById("effectivenessRealization").value = selectedEffectiveness;
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
-        }
-
-        function setupLineDependenceButtons() {
-          const c = document.getElementById("dependenceButtons");
-          c.innerHTML = "";
-          lineDependenceOptions.forEach(option => {
-            const b = document.createElement("button");
-            b.textContent = option;
-            b.className = "tag";
-            b.onclick = function () {
-              Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-              if (selectedLineDependence === option) {
-                selectedLineDependence = "";
-                b.classList.remove("selected");
-              } else {
-                selectedLineDependence = option;
-                b.classList.add("selected");
-              }
-              document.getElementById("dependence").value = selectedLineDependence;
-              const storeName = document.getElementById("storeName").value.trim();
-              if (storeName) saveData(storeName);
-            };
-            c.appendChild(b);
+        if(currentType === "MEO"){
+          const meoFields = ["reviewCount","surveyCount","searchRank","sharedContent","mtgDependence"];
+          meoFields.forEach(field=>{
+            const el = document.getElementById(field);
+            if(el && data[field] !== undefined) el.value = data[field];
           });
         }
 
-        // MTG依存度
-        function setupMtgDependenceButtons() {
-            const c = document.getElementById("mtgDependenceButtons");
-            c.innerHTML = "";
-            mtgDependenceOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedMtgDependence === option) { selectedMtgDependence = ""; b.classList.remove("selected"); }
-                    else { selectedMtgDependence = option; b.classList.add("selected"); }
-                    document.getElementById("mtgDependence").value = selectedMtgDependence;
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
+        // 人柄
+        if(data.selectedPersonalities){
+          selectedPersonalities = Array.isArray(data.selectedPersonalities) ? data.selectedPersonalities : [];
+          document.querySelectorAll("#personalityButtons button").forEach(btn=>{
+            btn.classList.toggle("selected", selectedPersonalities.includes(btn.textContent));
+          });
+          document.getElementById("personality").value = selectedPersonalities.join("、");
+        }else{
+          selectedPersonalities = [];
+          document.getElementById("personality").value = "";
+          document.querySelectorAll("#personalityButtons button").forEach(btn=>btn.classList.remove("selected"));
+        }
+
+        // W受
+        selectedWAcceptance = data.selectedWAcceptance || "";
+        document.querySelectorAll("#wAcceptanceButtons button").forEach(btn=>btn.classList.toggle("selected", selectedWAcceptance===btn.textContent));
+        document.getElementById("wAcceptance").value = selectedWAcceptance;
+
+        // 更新ヨミ
+        selectedUpdateReading = data.selectedUpdateReading || "";
+        document.querySelectorAll("#updateReadingButtons button").forEach(btn=>btn.classList.toggle("selected", selectedUpdateReading===btn.textContent));
+        document.getElementById("updateReadingStatus").value = selectedUpdateReading;
+
+        // 関係値
+        selectedRelationship = data.selectedRelationship || "";
+        document.querySelectorAll("#relationshipButtons button").forEach(btn=>btn.classList.toggle("selected", selectedRelationship===btn.textContent));
+        document.getElementById("relationshipValue").value = selectedRelationship;
+
+        // 効果実感
+        selectedEffectiveness = data.selectedEffectiveness || "";
+        document.querySelectorAll("#effectivenessButtons button").forEach(btn=>btn.classList.toggle("selected", selectedEffectiveness===btn.textContent));
+        document.getElementById("effectivenessRealization").value = selectedEffectiveness;
+
+        // LINE依存度（人/システム）
+        selectedHumanDependence = data.humanDependence || "";
+        document.getElementById("humanDependence").value = selectedHumanDependence;
+        document.querySelectorAll("#humanDependenceButtons button").forEach(btn=>{
+          btn.classList.toggle("selected", selectedHumanDependence === btn.textContent);
+        });
+
+        selectedSystemDependence = data.systemDependence || "";
+        document.getElementById("systemDependence").value = selectedSystemDependence;
+        document.querySelectorAll("#systemDependenceButtons button").forEach(btn=>{
+          btn.classList.toggle("selected", selectedSystemDependence === btn.textContent);
+        });
+
+        // MEO: MTG依存度
+        if(currentType === "MEO"){
+          selectedMtgDependence = data.selectedMtgDependence || data.mtgDependence || "";
+          document.querySelectorAll("#mtgDependenceButtons button").forEach(btn=>btn.classList.toggle("selected", selectedMtgDependence===btn.textContent));
+          const el = document.getElementById("mtgDependence"); if(el) el.value = selectedMtgDependence;
+        }else{
+          selectedMtgDependence = "";
+          const el = document.getElementById("mtgDependence"); if(el) el.value = "";
+          document.querySelectorAll("#mtgDependenceButtons button").forEach(btn=>btn.classList.remove("selected"));
         }
 
         // MTG外対応
-        function setupSupportOutsideMtgButtons() {
-            const c = document.getElementById("supportOutsideMtgButtons");
-            c.innerHTML = "";
-            supportOutsideMtgOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedSupportOutsideMtg === option) { selectedSupportOutsideMtg = ""; b.classList.remove("selected"); }
-                    else { selectedSupportOutsideMtg = option; b.classList.add("selected"); }
-                    document.getElementById("supportOutsideMtg").value = selectedSupportOutsideMtg;
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
-        }
+        selectedSupportOutsideMtg = data.selectedSupportOutsideMtg || "";
+        document.querySelectorAll("#supportOutsideMtgButtons button").forEach(btn=>btn.classList.toggle("selected", selectedSupportOutsideMtg===btn.textContent));
+        document.getElementById("supportOutsideMtg").value = selectedSupportOutsideMtg;
 
         // やり取り頻度
-        function setupCommunicationFrequencyButtons() {
-            const c = document.getElementById("communicationFrequencyButtons");
-            c.innerHTML = "";
-            communicationFrequencyOptions.forEach(option => {
-                const b = document.createElement("button");
-                b.textContent = option; b.className = "tag";
-                b.onclick = function () {
-                    Array.from(c.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                    if (selectedCommunicationFrequency === option) { selectedCommunicationFrequency = ""; b.classList.remove("selected"); }
-                    else { selectedCommunicationFrequency = option; b.classList.add("selected"); }
-                    document.getElementById("communicationFrequency").value = selectedCommunicationFrequency;
-                    const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                };
-                c.appendChild(b);
-            });
+        selectedCommunicationFrequency = data.selectedCommunicationFrequency || "";
+        document.querySelectorAll("#communicationFrequencyButtons button").forEach(btn=>btn.classList.toggle("selected", selectedCommunicationFrequency===btn.textContent));
+        document.getElementById("communicationFrequency").value = selectedCommunicationFrequency;
+
+        // 共有内容（MEO）
+        if(currentType === "MEO" && data.selectedSharedContents){
+          selectedSharedContents = Array.isArray(data.selectedSharedContents) ? data.selectedSharedContents : [];
+          document.querySelectorAll("#sharedContentButtons button").forEach(btn=>{
+            btn.classList.toggle("selected", selectedSharedContents.includes(btn.textContent));
+          });
+          document.getElementById("sharedContent").value = selectedSharedContents.join("、");
+        }else if(currentType === "MEO"){
+          selectedSharedContents = [];
+          document.getElementById("sharedContent").value = "";
+          document.querySelectorAll("#sharedContentButtons button").forEach(btn=>btn.classList.remove("selected"));
         }
 
-        function setupCrosssellCheckButtons() {
-            const container = document.getElementById("crosssellCheckGroup");
-            container.innerHTML = "";
-            crosssellItems.forEach(item => {
-                const itemGroup = document.createElement("div");
-                itemGroup.className = "crosssell-group";
-                const title = document.createElement("div");
-                title.className = "crosssell-title";
-                title.innerHTML = `<i class="fas fa-tag"></i> ${item}`;
-                const options = document.createElement("div");
-                options.className = "crosssell-options";
-                if (selectedCrosssellChecks[item] === undefined) selectedCrosssellChecks[item] = "";
-                checkStatuses.forEach(status => {
-                    const button = document.createElement("button");
-                    button.textContent = status; button.className = "crosssell-option";
-                    if (selectedCrosssellChecks[item] === status) button.classList.add("selected");
-                    button.onclick = function () {
-                        if (selectedCrosssellChecks[item] === status) {
-                            selectedCrosssellChecks[item] = ""; button.classList.remove("selected");
-                        } else {
-                            Array.from(options.getElementsByTagName("button")).forEach(btn => btn.classList.remove("selected"));
-                            selectedCrosssellChecks[item] = status; button.classList.add("selected");
-                        }
-                        updateCrosssellCheckHiddenField();
-                        const storeName = document.getElementById("storeName").value.trim(); if (storeName) saveData(storeName);
-                    };
-                    options.appendChild(button);
-                });
-                itemGroup.appendChild(title); itemGroup.appendChild(options); container.appendChild(itemGroup);
-            });
-            updateCrosssellCheckHiddenField();
+        // クロスセル
+        if(data.crosssellSelections){
+          selectedCrosssellChecks = { ...data.crosssellSelections };
+          setupCrosssellCheckButtons();
+        }else{
+          selectedCrosssellChecks = {};
+          crosssellItems.forEach(item=>selectedCrosssellChecks[item]="");
+          setupCrosssellCheckButtons();
         }
 
-        function updateSuggestions(query) {
-            const suggestionsDiv = document.getElementById("suggestions");
-            const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-            const storeNames = Object.keys(savedData);
-            if (storeNames.length === 0) { suggestionsDiv.style.display = "none"; return; }
-            let matchedStores = [];
-            if (query.trim() === "") matchedStores = storeNames.slice(0, 10);
-            else matchedStores = storeNames.filter(name => name.toLowerCase().includes(query.toLowerCase())).slice(0, 10);
-            if (matchedStores.length > 0) {
-                suggestionsDiv.innerHTML = "";
-                matchedStores.forEach(store => {
-                    const item = document.createElement("div");
-                    item.classList.add("suggestion-item"); item.textContent = store;
-                    suggestionsDiv.appendChild(item);
-                });
-                suggestionsDiv.style.display = "block";
-            } else { suggestionsDiv.style.display = "none"; }
-        }
+      }catch(e){
+        console.error("データ復元エラー:", e);
+        resetFields();
+      }
+    }
 
-        function setupStoreSuggestions() {
-            const storeInput = document.getElementById("storeName");
-            const suggestionsDiv = document.getElementById("suggestions");
-            storeInput.addEventListener("focus", function () { updateSuggestions(this.value); });
-            storeInput.addEventListener("input", function () { updateSuggestions(this.value); });
-            document.addEventListener("click", function (e) { if (e.target !== storeInput && e.target !== suggestionsDiv) suggestionsDiv.style.display = "none"; });
-            suggestionsDiv.addEventListener("click", function (e) {
-                if (e.target.classList.contains("suggestion-item")) {
-                    storeInput.value = e.target.textContent; suggestionsDiv.style.display = "none"; restoreData(storeInput.value.trim());
-                }
-            });
-        }
+    function saveData(storeName){
+      try{
+        let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
+        if(!savedData[storeName]) savedData[storeName] = {};
 
-        function setupStoreDataHandling() {
-            const storeNameInput = document.getElementById("storeName");
-            const inputFields = [
-              "personality","wAcceptance","updateReadingStatus","relationshipValue",
-              "effectivenessRealization","notes","changes","mtgContent","nextPlan",
-              "reviewCount","surveyCount","searchRank","crosssellNotes","sharedContent",
-              "mtgDate","mtgDependence","supportOutsideMtg","communicationFrequency",
-              "dependence" // ←追加
-            ];
-            storeNameInput.addEventListener("input", function () {
-                const storeName = this.value.trim();
-                if (storeName) {
-                    const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-                    if (savedData[storeName]) restoreData(storeName); else resetFields();
-                } else resetFields();
-            });
-            storeNameInput.addEventListener("keydown", function (e) {
-                if (e.key === "Enter") {
-                    const suggestionsDiv = document.getElementById("suggestions");
-                    const firstSuggestion = suggestionsDiv.querySelector(".suggestion-item");
-                    if (firstSuggestion && suggestionsDiv.style.display !== "none") {
-                        this.value = firstSuggestion.textContent; suggestionsDiv.style.display = "none"; restoreData(this.value.trim()); e.preventDefault();
-                    }
-                }
-            });
-            inputFields.forEach(field => {
-                const element = document.getElementById(field);
-                if (element) element.addEventListener("input", function () {
-                    const storeName = storeNameInput.value.trim(); if (storeName) saveData(storeName);
-                });
-            });
-        }
+        const inputFields = [
+          "personality","wAcceptance","relationshipValue","effectivenessRealization",
+          "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate",
+          "supportOutsideMtg","communicationFrequency",
+          // 追加：LINE依存度
+          "humanDependence","systemDependence"
+        ];
+        inputFields.forEach(field=>{
+          const el = document.getElementById(field);
+          if(el) savedData[storeName][field] = el.value;
+        });
 
-        function restoreData(storeName, forceType = null) {
-            try {
-                const savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-                if (!savedData[storeName]) { resetFields(); return; }
-                const data = savedData[storeName];
-                const currentType = forceType || selectedType || "LINE";
+        // MEOフィールド
+        const meoFields = ["reviewCount","surveyCount","searchRank","sharedContent","mtgDependence"];
+        meoFields.forEach(field=>{
+          const el = document.getElementById(field);
+          if(el) savedData[storeName][field] = el.value;
+        });
 
-                const commonFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "supportOutsideMtg", "communicationFrequency"];
-                commonFields.forEach(field => { const el = document.getElementById(field); if (el && data[field] !== undefined) el.value = data[field]; });
+        // 選択系の状態
+        savedData[storeName].selectedPersonalities = [...selectedPersonalities];
+        savedData[storeName].selectedWAcceptance = selectedWAcceptance;
+        savedData[storeName].selectedUpdateReading = selectedUpdateReading;
+        savedData[storeName].selectedRelationship = selectedRelationship;
+        savedData[storeName].selectedEffectiveness = selectedEffectiveness;
 
-                if (currentType === "MEO") {
-                    const meoFields = ["reviewCount", "surveyCount", "searchRank", "sharedContent", "mtgDependence"];
-                    meoFields.forEach(field => { const el = document.getElementById(field); if (el && data[field] !== undefined) el.value = data[field]; });
-                }
+        // MEO: MTG依存度・共有内容
+        savedData[storeName].selectedMtgDependence = selectedMtgDependence;
+        savedData[storeName].selectedSharedContents = [...selectedSharedContents];
 
-                // 人柄
-                if (data.selectedPersonalities) {
-                    selectedPersonalities = Array.isArray(data.selectedPersonalities) ? data.selectedPersonalities : [];
-                    document.querySelectorAll("#personalityButtons button").forEach(btn => {
-                        btn.classList.toggle("selected", selectedPersonalities.includes(btn.textContent));
-                    });
-                    document.getElementById("personality").value = selectedPersonalities.join("、");
-                } else {
-                    selectedPersonalities = [];
-                    document.getElementById("personality").value = "";
-                    document.querySelectorAll("#personalityButtons button").forEach(btn => btn.classList.remove("selected"));
-                }
+        savedData[storeName].selectedSupportOutsideMtg = selectedSupportOutsideMtg;
+        savedData[storeName].selectedCommunicationFrequency = selectedCommunicationFrequency;
 
-                // W受
-                selectedWAcceptance = data.selectedWAcceptance || "";
-                document.querySelectorAll("#wAcceptanceButtons button").forEach(btn => btn.classList.toggle("selected", selectedWAcceptance === btn.textContent));
-                document.getElementById("wAcceptance").value = selectedWAcceptance;
+        savedData[storeName].crosssellSelections = { ...selectedCrosssellChecks };
 
-                // 更新ヨミ
-                selectedUpdateReading = data.selectedUpdateReading || "";
-                document.querySelectorAll("#updateReadingButtons button").forEach(btn => btn.classList.toggle("selected", selectedUpdateReading === btn.textContent));
-                document.getElementById("updateReadingStatus").value = selectedUpdateReading;
+        localStorage.setItem("storeData", JSON.stringify(savedData));
+        return true;
+      }catch(e){
+        console.error("データ保存エラー:", e);
+        return false;
+      }
+    }
 
-                // 関係値
-                selectedRelationship = data.selectedRelationship || "";
-                document.querySelectorAll("#relationshipButtons button").forEach(btn => btn.classList.toggle("selected", selectedRelationship === btn.textContent));
-                document.getElementById("relationshipValue").value = selectedRelationship;
+    function resetFields(){
+      const inputFields = [
+        "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
+        "notes","changes","mtgContent","nextPlan","reviewCount","surveyCount","searchRank",
+        "crosssellNotes","sharedContent","mtgDate","mtgDependence","supportOutsideMtg","communicationFrequency",
+        // 追加：LINE依存度
+        "humanDependence","systemDependence"
+      ];
+      inputFields.forEach(field=>{ const el = document.getElementById(field); if(el) el.value = ""; });
 
-                // 効果実感
-                selectedEffectiveness = data.selectedEffectiveness || "";
-                document.querySelectorAll("#effectivenessButtons button").forEach(btn => btn.classList.toggle("selected", selectedEffectiveness === btn.textContent));
-                document.getElementById("effectivenessRealization").value = selectedEffectiveness;
+      // 人柄
+      selectedPersonalities = [];
+      document.querySelectorAll("#personalityButtons button").forEach(b=>b.classList.remove("selected"));
 
-                if (currentType === "LINE") {
-                  selectedLineDependence = data.selectedLineDependence || "";
-                  document.querySelectorAll("#dependenceButtons button")
-                    .forEach(btn => btn.classList.toggle("selected", selectedLineDependence === btn.textContent));
-                  const depEl = document.getElementById("dependence");
-                  if (depEl) depEl.value = selectedLineDependence;
-                } else {
-                  selectedLineDependence = "";
-                  const depEl = document.getElementById("dependence");
-                  if (depEl) depEl.value = "";
-                  document.querySelectorAll("#dependenceButtons button").forEach(btn => btn.classList.remove("selected"));
-                }
-                
-                // MTG依存度（MEOのみ）
-                if (currentType === "MEO") {
-                    selectedMtgDependence = data.selectedMtgDependence || "";
-                    document.querySelectorAll("#mtgDependenceButtons button").forEach(btn => btn.classList.toggle("selected", selectedMtgDependence === btn.textContent));
-                    document.getElementById("mtgDependence").value = selectedMtgDependence;
-                } else {
-                    selectedMtgDependence = "";
-                    if (document.getElementById("mtgDependence")) {
-                        document.getElementById("mtgDependence").value = "";
-                    }
-                    document.querySelectorAll("#mtgDependenceButtons button").forEach(btn => btn.classList.remove("selected"));
-                }
+      // 単一選択
+      selectedWAcceptance=""; document.querySelectorAll("#wAcceptanceButtons button").forEach(b=>b.classList.remove("selected"));
+      selectedUpdateReading=""; document.querySelectorAll("#updateReadingButtons button").forEach(b=>b.classList.remove("selected"));
+      selectedRelationship=""; document.querySelectorAll("#relationshipButtons button").forEach(b=>b.classList.remove("selected"));
+      selectedEffectiveness=""; document.querySelectorAll("#effectivenessButtons button").forEach(b=>b.classList.remove("selected"));
 
-                // MTG外対応
-                selectedSupportOutsideMtg = data.selectedSupportOutsideMtg || "";
-                document.querySelectorAll("#supportOutsideMtgButtons button").forEach(btn => btn.classList.toggle("selected", selectedSupportOutsideMtg === btn.textContent));
-                document.getElementById("supportOutsideMtg").value = selectedSupportOutsideMtg;
+      // LINE依存度（人/システム）
+      selectedHumanDependence=""; document.querySelectorAll("#humanDependenceButtons button").forEach(b=>b.classList.remove("selected"));
+      selectedSystemDependence=""; document.querySelectorAll("#systemDependenceButtons button").forEach(b=>b.classList.remove("selected"));
 
-                // やり取り頻度
-                selectedCommunicationFrequency = data.selectedCommunicationFrequency || "";
-                document.querySelectorAll("#communicationFrequencyButtons button").forEach(btn => btn.classList.toggle("selected", selectedCommunicationFrequency === btn.textContent));
-                document.getElementById("communicationFrequency").value = selectedCommunicationFrequency;
+      // MEO系
+      selectedMtgDependence=""; document.querySelectorAll("#mtgDependenceButtons button").forEach(b=>b.classList.remove("selected"));
+      selectedSupportOutsideMtg=""; document.querySelectorAll("#supportOutsideMtgButtons button").forEach(b=>b.classList.remove("selected"));
+      selectedCommunicationFrequency=""; document.querySelectorAll("#communicationFrequencyButtons button").forEach(b=>b.classList.remove("selected"));
 
-                // 共有内容（MEO）
-                if (currentType === "MEO" && data.selectedSharedContents) {
-                    selectedSharedContents = Array.isArray(data.selectedSharedContents) ? data.selectedSharedContents : [];
-                    document.querySelectorAll("#sharedContentButtons button").forEach(btn => btn.classList.toggle("selected", selectedSharedContents.includes(btn.textContent)));
-                    document.getElementById("sharedContent").value = selectedSharedContents.join("、");
-                } else if (currentType === "MEO") {
-                    selectedSharedContents = [];
-                    document.getElementById("sharedContent").value = "";
-                    document.querySelectorAll("#sharedContentButtons button").forEach(btn => btn.classList.remove("selected"));
-                }
+      selectedSharedContents = [];
+      document.querySelectorAll("#sharedContentButtons button").forEach(b=>b.classList.remove("selected"));
 
-                // クロスセル
-                if (data.crosssellSelections) {
-                    selectedCrosssellChecks = { ...data.crosssellSelections };
-                    setupCrosssellCheckButtons();
-                } else {
-                    selectedCrosssellChecks = {}; crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
-                    setupCrosssellCheckButtons();
-                }
-            } catch (e) {
-                console.error("データ復元エラー:", e);
-                resetFields();
-            }
-        }
+      selectedCrosssellChecks = {};
+      crosssellItems.forEach(item=>selectedCrosssellChecks[item]="");
+      setupCrosssellCheckButtons();
+    }
 
-        function saveData(storeName) {
-            try {
-                let savedData = JSON.parse(localStorage.getItem("storeData")) || {};
-                if (!savedData[storeName]) savedData[storeName] = {};
+    function updateCrosssellCheckHiddenField(){
+      let text = Object.entries(selectedCrosssellChecks)
+        .filter(([_,status])=>status!=="")
+        .map(([item,status])=>`${item}：${status}`)
+        .join("、\n");
+      document.getElementById("crosssellCheckSelected").value = text;
+    }
 
-                const inputFields = ["personality", "wAcceptance", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "crosssellNotes", "mtgDate", "supportOutsideMtg", "communicationFrequency"];
-                inputFields.forEach(field => {
-                    const el = document.getElementById(field);
-                    if (el) savedData[storeName][field] = el.value;
-                });
+    // ====== クリップボード ======
+    function copyToClipboard(){
+      updateCrosssellCheckHiddenField();
 
-                if (selectedType === "LINE") {
-                  savedData[storeName].selectedLineDependence = selectedLineDependence;
-                }
-                
-                if (selectedType === "MEO") {
-                  const meoFields = ["reviewCount","surveyCount","searchRank","sharedContent","mtgDependence"];
-                  meoFields.forEach(field => {
-                    const el = document.getElementById(field);
-                    if (el) savedData[storeName][field] = el.value;
-                  });
-                  savedData[storeName].selectedMtgDependence = selectedMtgDependence; // 念のため
-                }
+      const storeName = document.getElementById("storeName").value;
+      const mtgDate = document.getElementById("mtgDate").value;
+      const personality = document.getElementById("personality").value;
+      const wAcceptance = document.getElementById("wAcceptance").value;
+      const updateReading = document.getElementById("updateReadingStatus").value;
+      const relationship = document.getElementById("relationshipValue").value;
+      const effectiveness = document.getElementById("effectivenessRealization").value;
 
-                savedData[storeName].selectedPersonalities = [...selectedPersonalities];
-                savedData[storeName].selectedWAcceptance = selectedWAcceptance;
-                savedData[storeName].selectedUpdateReading = selectedUpdateReading;
-                savedData[storeName].selectedRelationship = selectedRelationship;
-                savedData[storeName].selectedEffectiveness = selectedEffectiveness;
+      // LINE用 2軸
+      const humanDependence = document.getElementById("humanDependence").value;
+      const systemDependence = document.getElementById("systemDependence").value;
 
-                // MTG依存度（MEOのみ保存）
-                if (selectedType === "MEO") {
-                    savedData[storeName].selectedMtgDependence = selectedMtgDependence;
-                }
-                
-                savedData[storeName].selectedSupportOutsideMtg = selectedSupportOutsideMtg;
-                savedData[storeName].selectedCommunicationFrequency = selectedCommunicationFrequency;
+      // MEO用
+      const mtgDependence = document.getElementById("mtgDependence").value;
 
-                if (selectedType === "MEO") {
-                    savedData[storeName].selectedSharedContents = [...selectedSharedContents];
-                }
+      const supportOutsideMtg = document.getElementById("supportOutsideMtg").value;
+      const communicationFrequency = document.getElementById("communicationFrequency").value;
+      const notes = document.getElementById("notes").value;
+      const changes = document.getElementById("changes").value;
+      const mtgContent = document.getElementById("mtgContent").value;
+      const nextPlan = document.getElementById("nextPlan").value;
+      const crosssellNotes = document.getElementById("crosssellNotes").value;
+      const checkSelected = document.getElementById("crosssellCheckSelected").value;
 
-                savedData[storeName].crosssellSelections = { ...selectedCrosssellChecks };
-                localStorage.setItem("storeData", JSON.stringify(savedData));
-                return true;
-            } catch (e) {
-                console.error("データ保存エラー:", e);
-                return false;
-            }
-        }
+      let outputText = "";
 
-        function resetFields() {
-            const inputFields = ["personality", "wAcceptance", "updateReadingStatus", "relationshipValue", "effectivenessRealization", "notes", "changes", "mtgContent", "nextPlan", "reviewCount", "surveyCount", "searchRank", "crosssellNotes", "sharedContent", "mtgDate", "mtgDependence", "supportOutsideMtg", "communicationFrequency"];
-            inputFields.forEach(field => { const el = document.getElementById(field); if (el) el.value = ""; });
-
-            selectedPersonalities = []; document.querySelectorAll("#personalityButtons button").forEach(b => b.classList.remove("selected"));
-            selectedWAcceptance = ""; document.querySelectorAll("#wAcceptanceButtons button").forEach(b => b.classList.remove("selected"));
-            selectedUpdateReading = ""; document.querySelectorAll("#updateReadingButtons button").forEach(b => b.classList.remove("selected"));
-            selectedRelationship = ""; document.querySelectorAll("#relationshipButtons button").forEach(b => b.classList.remove("selected"));
-            selectedEffectiveness = ""; document.querySelectorAll("#effectivenessButtons button").forEach(b => b.classList.remove("selected"));
-
-            // 3項目のリセット
-            selectedMtgDependence = ""; document.querySelectorAll("#mtgDependenceButtons button").forEach(b => b.classList.remove("selected"));
-            selectedSupportOutsideMtg = ""; document.querySelectorAll("#supportOutsideMtgButtons button").forEach(b => b.classList.remove("selected"));
-            selectedCommunicationFrequency = ""; document.querySelectorAll("#communicationFrequencyButtons button").forEach(b => b.classList.remove("selected"));
-
-            selectedSharedContents = []; document.querySelectorAll("#sharedContentButtons button").forEach(b => b.classList.remove("selected"));
-            selectedCrosssellChecks = {}; crosssellItems.forEach(item => selectedCrosssellChecks[item] = "");
-            setupCrosssellCheckButtons();
-
-            selectedLineDependence = "";
-            document.querySelectorAll("#dependenceButtons button").forEach(b => b.classList.remove("selected"));
-            const depEl = document.getElementById("dependence");
-            if (depEl) depEl.value = "";
-        }
-
-        function updateCrosssellCheckHiddenField() {
-            let text = Object.entries(selectedCrosssellChecks)
-                .filter(([_, status]) => status !== "")
-                .map(([item, status]) => `${item}：${status}`)
-                .join("、\n");
-            document.getElementById("crosssellCheckSelected").value = text;
-        }
-
-        function copyToClipboard() {
-          updateCrosssellCheckHiddenField();
-          const storeName = document.getElementById("storeName").value;
-          const mtgDate = document.getElementById("mtgDate").value;
-          const personality = document.getElementById("personality").value;
-          const wAcceptance = document.getElementById("wAcceptance").value;
-          const updateReading = document.getElementById("updateReadingStatus").value;
-          const relationship = document.getElementById("relationshipValue").value;
-          const effectiveness = document.getElementById("effectivenessRealization").value;
-        
-          // ★ 依存度の取得（LINE/MEOで分岐）
-          const lineDependence = selectedType === "LINE" ? document.getElementById("dependence").value : "";
-          const mtgDependence = selectedType === "MEO" ? document.getElementById("mtgDependence").value : "";
-        
-          const supportOutsideMtg = document.getElementById("supportOutsideMtg").value;
-          const communicationFrequency = document.getElementById("communicationFrequency").value;
-        
-          const notes = document.getElementById("notes").value;
-          const changes = document.getElementById("changes").value;
-          const mtgContent = document.getElementById("mtgContent").value;
-          const nextPlan = document.getElementById("nextPlan").value;
-          const crosssellNotes = document.getElementById("crosssellNotes").value;
-          const checkSelected = document.getElementById("crosssellCheckSelected").value;
-        
-          let outputText = "";
-        
-          if (selectedType === "LINE") {
-outputText = `L【サポートMTG】
+      if(selectedType === "LINE"){
+        outputText = `L【サポートMTG】
 店舗名：${storeName}
 日付：${mtgDate}
 人柄：${personality}
@@ -1170,7 +879,8 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
-依存度：${lineDependence}
+人依存（中央値以下は✕）：${humanDependence}
+システム依存（中央値以下は✕）：${systemDependence}
 MTG外対応：${supportOutsideMtg}
 やり取り頻度：${communicationFrequency}
 備考：${notes}
@@ -1189,14 +899,13 @@ ${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
-} else if (selectedType === "MEO") {
-const reviewCount = document.getElementById("reviewCount").value;
-const sharedContent = document.getElementById("sharedContent").value;
-const surveyCount = document.getElementById("surveyCount").value;
-const searchRank = document.getElementById("searchRank").value;
+      }else if(selectedType === "MEO"){
+        const reviewCount = document.getElementById("reviewCount").value;
+        const sharedContent = document.getElementById("sharedContent").value;
+        const surveyCount = document.getElementById("surveyCount").value;
+        const searchRank = document.getElementById("searchRank").value;
 
-// ★ MEOは MTG依存度 を正しく出力
-outputText = `M【サポートMTG】
+        outputText = `M【サポートMTG】
 店舗名：${storeName}
 日付：${mtgDate}
 人柄：${personality}
@@ -1230,17 +939,16 @@ ${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
-}
-        
-          if (outputText) {
-            navigator.clipboard.writeText(outputText).then(() => {
-              const copyMessage = document.getElementById("copyMessage");
-              copyMessage.classList.add("visible");
-              setTimeout(() => copyMessage.classList.remove("visible"), 2000);
-            }).catch(err => console.error("コピーに失敗しました: ", err));
-          }
-        }
-    </script>
-</body>
+      }
 
+      if(outputText){
+        navigator.clipboard.writeText(outputText).then(()=>{
+          const copyMessage = document.getElementById("copyMessage");
+          copyMessage.classList.add("visible");
+          setTimeout(()=>copyMessage.classList.remove("visible"), 2000);
+        }).catch(err=>console.error("コピーに失敗しました: ", err));
+      }
+    }
+  </script>
+</body>
 </html>
