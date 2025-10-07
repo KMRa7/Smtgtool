@@ -132,7 +132,7 @@
 
       <!-- LINE用：人依存 / システム依存（中央値以下は✕） -->
       <div id="lineHumanDependenceField" class="form-group" style="display:none;">
-        <label for="humanDependence">人依存（中央値以下は✕）</label>
+        <label for="humanDependence">人依存</label>
         <input type="text" id="humanDependence" class="readonly-input" readonly>
         <div class="tag-container" id="humanDependenceButtons"></div>
       </div>
@@ -219,17 +219,17 @@
 
     const personalityOptions = ["愛想いい","冷静な方","わがまま","ハキハキ系","落ち着いている","明るい","しゃべり","優しい","慎重な人","向上心ある人","カタコト"];
     const wAcceptanceOptions = ["はい","いいえ"];
-    const updateReadingOptions = ["〇","×"];
-    const relationshipOptions = ["〇:仲良くなれている","✕:仲良くなれていない"];
-    const effectivenessOptions = ["〇:成果(集客・新規など)を感じている","✕:反応がない、実感なし"];
+    const updateReadingOptions = ["〇","✕"];
+    const relationshipOptions = ["〇","✕"];
+    const effectivenessOptions = ["〇","✕"];
 
     // 依存度（LINE用 2軸）
-    const dependenceOptions = ["〇","×"];
+    const dependenceOptions = ["〇","✕"];
 
     // MEO用
-    const mtgDependenceOptions = ["〇","×"];
-    const supportOutsideMtgOptions = ["〇","×"];
-    const communicationFrequencyOptions = ["〇","×"];
+    const mtgDependenceOptions = ["〇","✕"];
+    const supportOutsideMtgOptions = ["〇","✕"];
+    const communicationFrequencyOptions = ["〇","✕"];
     const crosssellItems = ["WiFi","電気","ガス","携帯","決済サービス","フィフティ"];
     const checkStatuses = ["案内済み(受注)","案内済み(失注)","案内まだ","対応中","見込み有"];
     const sharedContentOptions = [
