@@ -118,19 +118,20 @@
         <div class="tag-container" id="updateReadingButtons"></div>
       </div>
 
-      <div class="form-group">
+      <!-- ▼▼ 並び替え対象：ここから（各グループにID付与） ▼▼ -->
+      <div class="form-group" id="relationshipGroup">
         <label for="relationshipValue">関係値</label>
         <input type="text" id="relationshipValue" class="readonly-input" readonly>
         <div class="tag-container" id="relationshipButtons"></div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" id="effectivenessGroup">
         <label for="effectivenessRealization">効果実感</label>
         <input type="text" id="effectivenessRealization" class="readonly-input" readonly>
         <div class="tag-container" id="effectivenessButtons"></div>
       </div>
 
-      <!-- LINE用：人依存 / システム依存（中央値以下は✕） -->
+      <!-- LINE用：人依存 / システム依存 -->
       <div id="lineHumanDependenceField" class="form-group" style="display:none;">
         <label for="humanDependence">人依存</label>
         <input type="text" id="humanDependence" class="readonly-input" readonly>
@@ -150,17 +151,18 @@
         <div class="tag-container" id="mtgDependenceButtons"></div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" id="supportOutsideMtgGroup">
         <label for="supportOutsideMtg">MTG外対応</label>
         <input type="text" id="supportOutsideMtg" class="readonly-input" readonly>
         <div class="tag-container" id="supportOutsideMtgButtons"></div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" id="communicationFrequencyGroup">
         <label for="communicationFrequency">やり取り頻度</label>
         <input type="text" id="communicationFrequency" class="readonly-input" readonly>
         <div class="tag-container" id="communicationFrequencyButtons"></div>
       </div>
+      <!-- ▲▲ 並び替え対象：ここまで ▲▲ -->
 
       <div class="form-group">
         <label for="notes">備考</label>
@@ -223,7 +225,7 @@
     const relationshipOptions = ["〇","✕"];
     const effectivenessOptions = ["〇","✕"];
 
-    // 依存度（LINE用 2軸）
+    // 依存度（人/システム）
     const dependenceOptions = ["〇","✕"];
 
     // MEO用
@@ -246,7 +248,7 @@
     let selectedCrosssellChecks = {};
     let selectedSharedContents = [];
 
-    // 追加：LINE依存度（人/システム）
+    // 依存度
     let selectedHumanDependence = "";
     let selectedSystemDependence = "";
 
@@ -263,11 +265,9 @@
       setupEffectivenessButtons();
       setupSharedContentButtons();
 
-      // LINE依存度（人・システム）
       setupHumanDependenceButtons();
       setupSystemDependenceButtons();
 
-      // MEO/共通
       setupMtgDependenceButtons();
       setupSupportOutsideMtgButtons();
       setupCommunicationFrequencyButtons();
@@ -287,11 +287,9 @@
         document.getElementById("meoFields").style.display = "none";
         document.getElementById("meoMtgField").style.display = "none";
 
-        // LINE: 人/システム依存を表示
+        // LINE表示：人・システム依存を表示、MTG依存は非表示
         document.getElementById("lineHumanDependenceField").style.display = "block";
         document.getElementById("lineSystemDependenceField").style.display = "block";
-
-        // MEO: MTG依存度は隠す
         document.getElementById("mtgDependenceField").style.display = "none";
 
         document.getElementById("contentTitle").textContent = "MTG内容";
@@ -300,20 +298,47 @@
         document.getElementById("meoFields").style.display = "block";
         document.getElementById("meoMtgField").style.display = "block";
 
-        // LINE: 人/システム依存は隠す
-        document.getElementById("lineHumanDependenceField").style.display = "none";
+        // MEO表示：人依存は表示、システム依存は非表示、MTG依存は表示
+        document.getElementById("lineHumanDependenceField").style.display = "block";
         document.getElementById("lineSystemDependenceField").style.display = "none";
-
-        // MEO: MTG依存度を表示
         document.getElementById("mtgDependenceField").style.display = "block";
 
         document.getElementById("contentTitle").textContent = "MTG内容";
       }
       selectedType = type;
 
+      // 並び順を適用
+      applyFieldOrder();
+
       const storeName = document.getElementById("storeName").value.trim();
       if(storeName) restoreData(storeName, type);
     }
+
+    // ▼▼ 並び順制御（ご指定順） ▼▼
+    function applyFieldOrder(){
+      const container = document.getElementById("formContainer");
+      const anchor = document.getElementById("notes").closest(".form-group"); // 備考の直前に集約
+
+      const relationship = document.getElementById("relationshipGroup");
+      const effectiveness = document.getElementById("effectivenessGroup");
+      const human = document.getElementById("lineHumanDependenceField");
+      const system = document.getElementById("lineSystemDependenceField");
+      const mtg = document.getElementById("mtgDependenceField");
+      const support = document.getElementById("supportOutsideMtgGroup");
+      const comm = document.getElementById("communicationFrequencyGroup");
+
+      const orderLINE = [relationship, effectiveness, human, support, comm, system];
+      const orderMEO  = [relationship, effectiveness, human, support, comm, mtg];
+
+      const sequence = (selectedType === "MEO") ? orderMEO : orderLINE;
+
+      // 挿入順で並べ替え（append/insertBeforeでDOM移動）
+      sequence.forEach(group => {
+        if(!group) return;
+        container.insertBefore(group, anchor);
+      });
+    }
+    // ▲▲ 並び順制御 ここまで ▲▲
 
     // ====== ボタン生成 ======
     function setupWAcceptanceButtons(){
@@ -418,7 +443,7 @@
       });
     }
 
-    // LINE依存度：人
+    // 人依存
     function setupHumanDependenceButtons(){
       const c = document.getElementById("humanDependenceButtons"); c.innerHTML = "";
       dependenceOptions.forEach(option=>{
@@ -435,7 +460,7 @@
       });
     }
 
-    // LINE依存度：システム
+    // システム依存
     function setupSystemDependenceButtons(){
       const c = document.getElementById("systemDependenceButtons"); c.innerHTML = "";
       dependenceOptions.forEach(option=>{
@@ -587,9 +612,7 @@
         "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
         "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate",
         "supportOutsideMtg","communicationFrequency",
-        // 追加：LINE依存度
         "humanDependence","systemDependence",
-        // MEO
         "reviewCount","surveyCount","searchRank","sharedContent","mtgDependence"
       ];
 
@@ -635,7 +658,6 @@
         const commonFields = [
           "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
           "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate","supportOutsideMtg","communicationFrequency",
-          // 追加
           "humanDependence","systemDependence"
         ];
         commonFields.forEach(field=>{
@@ -684,7 +706,7 @@
         document.querySelectorAll("#effectivenessButtons button").forEach(btn=>btn.classList.toggle("selected", selectedEffectiveness===btn.textContent));
         document.getElementById("effectivenessRealization").value = selectedEffectiveness;
 
-        // LINE依存度（人/システム）
+        // 依存度（人・システム）
         selectedHumanDependence = data.humanDependence || "";
         document.getElementById("humanDependence").value = selectedHumanDependence;
         document.querySelectorAll("#humanDependenceButtons button").forEach(btn=>{
@@ -741,6 +763,9 @@
           setupCrosssellCheckButtons();
         }
 
+        // 並び順の再適用
+        applyFieldOrder();
+
       }catch(e){
         console.error("データ復元エラー:", e);
         resetFields();
@@ -756,7 +781,6 @@
           "personality","wAcceptance","relationshipValue","effectivenessRealization",
           "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate",
           "supportOutsideMtg","communicationFrequency",
-          // 追加：LINE依存度
           "humanDependence","systemDependence"
         ];
         inputFields.forEach(field=>{
@@ -800,7 +824,6 @@
         "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
         "notes","changes","mtgContent","nextPlan","reviewCount","surveyCount","searchRank",
         "crosssellNotes","sharedContent","mtgDate","mtgDependence","supportOutsideMtg","communicationFrequency",
-        // 追加：LINE依存度
         "humanDependence","systemDependence"
       ];
       inputFields.forEach(field=>{ const el = document.getElementById(field); if(el) el.value = ""; });
@@ -815,7 +838,7 @@
       selectedRelationship=""; document.querySelectorAll("#relationshipButtons button").forEach(b=>b.classList.remove("selected"));
       selectedEffectiveness=""; document.querySelectorAll("#effectivenessButtons button").forEach(b=>b.classList.remove("selected"));
 
-      // LINE依存度（人/システム）
+      // 依存度
       selectedHumanDependence=""; document.querySelectorAll("#humanDependenceButtons button").forEach(b=>b.classList.remove("selected"));
       selectedSystemDependence=""; document.querySelectorAll("#systemDependenceButtons button").forEach(b=>b.classList.remove("selected"));
 
@@ -852,11 +875,8 @@
       const relationship = document.getElementById("relationshipValue").value;
       const effectiveness = document.getElementById("effectivenessRealization").value;
 
-      // LINE用 2軸
       const humanDependence = document.getElementById("humanDependence").value;
       const systemDependence = document.getElementById("systemDependence").value;
-
-      // MEO用
       const mtgDependence = document.getElementById("mtgDependence").value;
 
       const supportOutsideMtg = document.getElementById("supportOutsideMtg").value;
@@ -871,6 +891,7 @@
       let outputText = "";
 
       if(selectedType === "LINE"){
+        // ご指定順に並び替え済み
         outputText = `L【サポートMTG】
 店舗名：${storeName}
 日付：${mtgDate}
@@ -879,10 +900,10 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
-人依存（中央値以下は✕）：${humanDependence}
-システム依存（中央値以下は✕）：${systemDependence}
+人依存：${humanDependence}
 MTG外対応：${supportOutsideMtg}
 やり取り頻度：${communicationFrequency}
+システム依存：${systemDependence}
 備考：${notes}
 
 ◆修正・変更・追加設定◆
@@ -905,6 +926,7 @@ ${crosssellNotes}`;
         const surveyCount = document.getElementById("surveyCount").value;
         const searchRank = document.getElementById("searchRank").value;
 
+        // ご指定順に並び替え済み
         outputText = `M【サポートMTG】
 店舗名：${storeName}
 日付：${mtgDate}
@@ -913,7 +935,7 @@ W受ですか?：${wAcceptance}
 更新ヨミ：${updateReading}
 関係値：${relationship}
 効果実感：${effectiveness}
-MTG依存度：${mtgDependence}
+人依存：${humanDependence}
 MTG外対応：${supportOutsideMtg}
 やり取り頻度：${communicationFrequency}
 
@@ -933,6 +955,7 @@ ${nextPlan}
 ・クチコミ数：${reviewCount}
 ・アンケート数：${surveyCount}
 ・検索順位：${searchRank}
+・MTG依存度：${mtgDependence}
 
 ◆クロスセル内容◆
 ${checkSelected}
