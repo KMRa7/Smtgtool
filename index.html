@@ -53,12 +53,6 @@
     .section-title{ display:flex; align-items:center; margin:30px 0 15px; color:var(--primary); font-size:1.25rem; }
     .section-title::before,.section-title::after{ content:''; flex:1; border-bottom:1px solid var(--gray-light); }
     .section-title::before{ margin-right:15px; } .section-title::after{ margin-left:15px; }
-    .crosssell-group{ margin-bottom:20px; }
-    .crosssell-title{ font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-    .crosssell-options{ display:flex; flex-wrap:wrap; gap:8px; }
-    .crosssell-option{ background:var(--light); border:1px solid var(--gray-light); color:var(--gray-dark); padding:6px 10px; border-radius:var(--border-radius); font-size:.9rem; cursor:pointer; transition:var(--transition); }
-    .crosssell-option:hover{ background:#e9ecef; }
-    .crosssell-option.selected{ background:var(--primary); color:#fff; border-color:var(--primary); }
     .btn{ display:inline-block; padding:12px 20px; background:var(--primary); color:#fff; border:none; border-radius:var(--border-radius); font-size:1rem; font-weight:600; cursor:pointer; transition:var(--transition); text-align:center; box-shadow:var(--box-shadow); }
     .btn:hover{ background:var(--primary-light); transform:translateY(-2px); box-shadow:0 6px 12px rgba(0,0,0,.15); }
     .btn-copy{ margin:30px auto; display:block; min-width:200px; }
@@ -202,7 +196,7 @@
         </div>
       </div>
 
-      <!-- ★追加：クロスセル可or不可 -->
+      <!-- ★クロスセル：可否＋備考だけ -->
       <h2 class="section-title">クロスセル</h2>
       <div class="form-group" id="crosssellAvailabilityGroup">
         <label for="crosssellAvailability">クロスセル可or不可</label>
@@ -210,13 +204,9 @@
         <div class="tag-container" id="crosssellAvailabilityButtons"></div>
       </div>
 
-      <h2 class="section-title">クロスセル内容</h2>
-      <div class="form-group" id="crosssellCheckGroup"></div>
-
       <h2 class="section-title">クロスセル備考</h2>
       <div class="form-group"><textarea id="crosssellNotes" placeholder="クロスセルに関する備考を入力してください"></textarea></div>
 
-      <input type="hidden" id="crosssellCheckSelected">
       <button id="copyButton" class="btn btn-copy" onclick="copyToClipboard()">
         <i class="fas fa-clipboard"></i> コピーする
       </button>
@@ -240,14 +230,12 @@
     const mtgDependenceOptions = ["〇","✕"];
     const supportOutsideMtgOptions = ["〇","✕"];
     const communicationFrequencyOptions = ["〇","✕"];
-    const crosssellItems = ["WiFi","電気","ガス","携帯","決済サービス","フィフティ"];
-    const checkStatuses = ["案内済み(受注)","案内済み(失注)","案内まだ","対応中","見込み有"];
     const sharedContentOptions = [
       "AI運用アシスタント結果","インサイトクロス分析","業種別インサイトクロス分析",
       "キーワード","キーワード文章","インスタハッシュタグ","インスタ注意事項","アンケートPDF"
     ];
 
-    // ★追加：クロスセル可or不可
+    // クロスセル可否
     const crosssellAvailabilityOptions = ["L可","M可","モウカレ可","✖"];
 
     // 状態
@@ -256,7 +244,6 @@
     let selectedUpdateReading = "";
     let selectedRelationship = "";
     let selectedEffectiveness = "";
-    let selectedCrosssellChecks = {};
     let selectedSharedContents = [];
 
     // 依存度
@@ -268,7 +255,7 @@
     let selectedSupportOutsideMtg = "";
     let selectedCommunicationFrequency = "";
 
-    // ★追加：クロスセル可or不可（単一選択）
+    // クロスセル可否
     let selectedCrosssellAvailability = "";
 
     document.addEventListener("DOMContentLoaded", function(){
@@ -286,10 +273,7 @@
       setupSupportOutsideMtgButtons();
       setupCommunicationFrequencyButtons();
 
-      // ★追加
       setupCrosssellAvailabilityButtons();
-
-      setupCrosssellCheckButtons();
 
       setupStoreDataHandling();
       setupStoreSuggestions();
@@ -350,7 +334,6 @@
 
       const sequence = (selectedType === "MEO") ? orderMEO : orderLINE;
 
-      // 挿入順で並べ替え（append/insertBeforeでDOM移動）
       sequence.forEach(group => {
         if(!group) return;
         container.insertBefore(group, anchor);
@@ -546,7 +529,7 @@
       });
     }
 
-    // ★追加：クロスセル可or不可
+    // クロスセル可否
     function setupCrosssellAvailabilityButtons(){
       const c = document.getElementById("crosssellAvailabilityButtons");
       if(!c) return;
@@ -574,41 +557,6 @@
         };
         c.appendChild(b);
       });
-    }
-
-    // クロスセル（商材×状態）
-    function setupCrosssellCheckButtons(){
-      const container = document.getElementById("crosssellCheckGroup"); container.innerHTML = "";
-      crosssellItems.forEach(item=>{
-        const itemGroup = document.createElement("div"); itemGroup.className="crosssell-group";
-        const title = document.createElement("div"); title.className="crosssell-title";
-        title.innerHTML = `<i class="fas fa-tag"></i><span>${item}</span>`;
-        const options = document.createElement("div"); options.className="crosssell-options";
-
-        if(selectedCrosssellChecks[item] === undefined) selectedCrosssellChecks[item] = "";
-
-        checkStatuses.forEach(status=>{
-          const button = document.createElement("button");
-          button.textContent = status; button.className = "crosssell-option";
-          if(selectedCrosssellChecks[item] === status) button.classList.add("selected");
-          button.onclick = function(){
-            if(selectedCrosssellChecks[item] === status){
-              selectedCrosssellChecks[item] = ""; button.classList.remove("selected");
-            }else{
-              Array.from(options.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
-              selectedCrosssellChecks[item] = status; button.classList.add("selected");
-            }
-            updateCrosssellCheckHiddenField();
-            const storeName = document.getElementById("storeName").value.trim(); if(storeName) saveData(storeName);
-          };
-          options.appendChild(button);
-        });
-
-        itemGroup.appendChild(title);
-        itemGroup.appendChild(options);
-        container.appendChild(itemGroup);
-      });
-      updateCrosssellCheckHiddenField();
     }
 
     // ====== サジェスト ======
@@ -662,7 +610,6 @@
         "supportOutsideMtg","communicationFrequency",
         "humanDependence","systemDependence",
         "reviewCount","surveyCount","searchRank","sharedContent","mtgDependence",
-        // ★追加
         "crosssellAvailability"
       ];
 
@@ -709,7 +656,6 @@
           "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
           "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate","supportOutsideMtg","communicationFrequency",
           "humanDependence","systemDependence",
-          // ★追加
           "crosssellAvailability"
         ];
         commonFields.forEach(field=>{
@@ -805,23 +751,12 @@
           document.querySelectorAll("#sharedContentButtons button").forEach(btn=>btn.classList.remove("selected"));
         }
 
-        // ★追加：クロスセル可or不可
+        // クロスセル可否
         selectedCrosssellAvailability = data.selectedCrosssellAvailability || data.crosssellAvailability || "";
         document.querySelectorAll("#crosssellAvailabilityButtons button").forEach(btn=>{
           btn.classList.toggle("selected", selectedCrosssellAvailability === btn.textContent);
         });
-        const csa = document.getElementById("crosssellAvailability");
-        if(csa) csa.value = selectedCrosssellAvailability;
-
-        // クロスセル（商材×状態）
-        if(data.crosssellSelections){
-          selectedCrosssellChecks = { ...data.crosssellSelections };
-          setupCrosssellCheckButtons();
-        }else{
-          selectedCrosssellChecks = {};
-          crosssellItems.forEach(item=>selectedCrosssellChecks[item]="");
-          setupCrosssellCheckButtons();
-        }
+        document.getElementById("crosssellAvailability").value = selectedCrosssellAvailability;
 
         // 並び順の再適用
         applyFieldOrder();
@@ -842,7 +777,6 @@
           "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate",
           "supportOutsideMtg","communicationFrequency",
           "humanDependence","systemDependence",
-          // ★追加
           "crosssellAvailability"
         ];
         inputFields.forEach(field=>{
@@ -871,10 +805,8 @@
         savedData[storeName].selectedSupportOutsideMtg = selectedSupportOutsideMtg;
         savedData[storeName].selectedCommunicationFrequency = selectedCommunicationFrequency;
 
-        // ★追加：クロスセル可or不可
+        // クロスセル可否
         savedData[storeName].selectedCrosssellAvailability = selectedCrosssellAvailability;
-
-        savedData[storeName].crosssellSelections = { ...selectedCrosssellChecks };
 
         localStorage.setItem("storeData", JSON.stringify(savedData));
         return true;
@@ -890,26 +822,21 @@
         "notes","changes","mtgContent","nextPlan","reviewCount","surveyCount","searchRank",
         "crosssellNotes","sharedContent","mtgDate","mtgDependence","supportOutsideMtg","communicationFrequency",
         "humanDependence","systemDependence",
-        // ★追加
         "crosssellAvailability"
       ];
       inputFields.forEach(field=>{ const el = document.getElementById(field); if(el) el.value = ""; });
 
-      // 人柄
       selectedPersonalities = [];
       document.querySelectorAll("#personalityButtons button").forEach(b=>b.classList.remove("selected"));
 
-      // 単一選択
       selectedWAcceptance=""; document.querySelectorAll("#wAcceptanceButtons button").forEach(b=>b.classList.remove("selected"));
       selectedUpdateReading=""; document.querySelectorAll("#updateReadingButtons button").forEach(b=>b.classList.remove("selected"));
       selectedRelationship=""; document.querySelectorAll("#relationshipButtons button").forEach(b=>b.classList.remove("selected"));
       selectedEffectiveness=""; document.querySelectorAll("#effectivenessButtons button").forEach(b=>b.classList.remove("selected"));
 
-      // 依存度
       selectedHumanDependence=""; document.querySelectorAll("#humanDependenceButtons button").forEach(b=>b.classList.remove("selected"));
       selectedSystemDependence=""; document.querySelectorAll("#systemDependenceButtons button").forEach(b=>b.classList.remove("selected"));
 
-      // MEO系
       selectedMtgDependence=""; document.querySelectorAll("#mtgDependenceButtons button").forEach(b=>b.classList.remove("selected"));
       selectedSupportOutsideMtg=""; document.querySelectorAll("#supportOutsideMtgButtons button").forEach(b=>b.classList.remove("selected"));
       selectedCommunicationFrequency=""; document.querySelectorAll("#communicationFrequencyButtons button").forEach(b=>b.classList.remove("selected"));
@@ -917,27 +844,12 @@
       selectedSharedContents = [];
       document.querySelectorAll("#sharedContentButtons button").forEach(b=>b.classList.remove("selected"));
 
-      // ★追加：クロスセル可or不可
       selectedCrosssellAvailability = "";
       document.querySelectorAll("#crosssellAvailabilityButtons button").forEach(b=>b.classList.remove("selected"));
-
-      selectedCrosssellChecks = {};
-      crosssellItems.forEach(item=>selectedCrosssellChecks[item]="");
-      setupCrosssellCheckButtons();
-    }
-
-    function updateCrosssellCheckHiddenField(){
-      let text = Object.entries(selectedCrosssellChecks)
-        .filter(([_,status])=>status!=="")
-        .map(([item,status])=>`${item}：${status}`)
-        .join("、\n");
-      document.getElementById("crosssellCheckSelected").value = text;
     }
 
     // ====== クリップボード ======
     function copyToClipboard(){
-      updateCrosssellCheckHiddenField();
-
       const storeName = document.getElementById("storeName").value;
       const mtgDate = document.getElementById("mtgDate").value;
       const personality = document.getElementById("personality").value;
@@ -957,9 +869,7 @@
       const mtgContent = document.getElementById("mtgContent").value;
       const nextPlan = document.getElementById("nextPlan").value;
       const crosssellNotes = document.getElementById("crosssellNotes").value;
-      const checkSelected = document.getElementById("crosssellCheckSelected").value;
 
-      // ★追加：クロスセル可or不可
       const crosssellAvailability = document.getElementById("crosssellAvailability").value;
 
       let outputText = "";
@@ -990,9 +900,6 @@ ${nextPlan}
 
 ◆クロスセル可or不可◆
 ${crosssellAvailability}
-
-◆クロスセル内容◆
-${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
@@ -1037,9 +944,6 @@ ${nextPlan}
 
 ◆クロスセル可or不可◆
 ${crosssellAvailability}
-
-◆クロスセル内容◆
-${checkSelected}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
