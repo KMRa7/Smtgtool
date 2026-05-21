@@ -204,6 +204,12 @@
         <div class="tag-container" id="crosssellAvailabilityButtons"></div>
       </div>
 
+      <div class="form-group" id="usenGuideProgressGroup">
+        <label for="usenGuideProgress">ユーセン案内進捗</label>
+        <input type="text" id="usenGuideProgress" class="readonly-input" readonly>
+        <div class="tag-container" id="usenGuideProgressButtons"></div>
+      </div>
+
       <h2 class="section-title">クロスセル備考</h2>
       <div class="form-group"><textarea id="crosssellNotes" placeholder="クロスセルに関する備考を入力してください"></textarea></div>
 
@@ -238,6 +244,9 @@
     // クロスセル可否
     const crosssellAvailabilityOptions = ["L可","M可","モウカレ可","✖"];
 
+    // ユーセン案内進捗
+    const usenGuideProgressOptions = ["案内済み","未案内"];
+
     // 状態
     let selectedPersonalities = [];
     let selectedWAcceptance = "";
@@ -258,6 +267,9 @@
     // クロスセル可否
     let selectedCrosssellAvailability = "";
 
+    // ユーセン案内進捗
+    let selectedUsenGuideProgress = "";
+
     document.addEventListener("DOMContentLoaded", function(){
       setupPersonalityButtons();
       setupWAcceptanceButtons();
@@ -274,6 +286,7 @@
       setupCommunicationFrequencyButtons();
 
       setupCrosssellAvailabilityButtons();
+      setupUsenGuideProgressButtons();
 
       setupStoreDataHandling();
       setupStoreSuggestions();
@@ -559,6 +572,36 @@
       });
     }
 
+    // ユーセン案内進捗
+    function setupUsenGuideProgressButtons(){
+      const c = document.getElementById("usenGuideProgressButtons");
+      if(!c) return;
+      c.innerHTML = "";
+
+      usenGuideProgressOptions.forEach(option=>{
+        const b = document.createElement("button");
+        b.textContent = option;
+        b.className = "tag";
+        b.onclick = function(){
+          Array.from(c.getElementsByTagName("button")).forEach(btn=>btn.classList.remove("selected"));
+
+          if(selectedUsenGuideProgress === option){
+            selectedUsenGuideProgress = "";
+            b.classList.remove("selected");
+          }else{
+            selectedUsenGuideProgress = option;
+            b.classList.add("selected");
+          }
+
+          document.getElementById("usenGuideProgress").value = selectedUsenGuideProgress;
+
+          const storeName = document.getElementById("storeName").value.trim();
+          if(storeName) saveData(storeName);
+        };
+        c.appendChild(b);
+      });
+    }
+
     // ====== サジェスト ======
     function updateSuggestions(query){
       const suggestionsDiv = document.getElementById("suggestions");
@@ -610,7 +653,7 @@
         "supportOutsideMtg","communicationFrequency",
         "humanDependence","systemDependence",
         "reviewCount","surveyCount","searchRank","sharedContent","mtgDependence",
-        "crosssellAvailability"
+        "crosssellAvailability","usenGuideProgress"
       ];
 
       storeNameInput.addEventListener("input", function(){
@@ -656,7 +699,7 @@
           "personality","wAcceptance","updateReadingStatus","relationshipValue","effectivenessRealization",
           "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate","supportOutsideMtg","communicationFrequency",
           "humanDependence","systemDependence",
-          "crosssellAvailability"
+          "crosssellAvailability","usenGuideProgress"
         ];
         commonFields.forEach(field=>{
           const el = document.getElementById(field);
@@ -758,6 +801,13 @@
         });
         document.getElementById("crosssellAvailability").value = selectedCrosssellAvailability;
 
+        // ユーセン案内進捗
+        selectedUsenGuideProgress = data.selectedUsenGuideProgress || data.usenGuideProgress || "";
+        document.querySelectorAll("#usenGuideProgressButtons button").forEach(btn=>{
+          btn.classList.toggle("selected", selectedUsenGuideProgress === btn.textContent);
+        });
+        document.getElementById("usenGuideProgress").value = selectedUsenGuideProgress;
+
         // 並び順の再適用
         applyFieldOrder();
 
@@ -777,7 +827,7 @@
           "notes","changes","mtgContent","nextPlan","crosssellNotes","mtgDate",
           "supportOutsideMtg","communicationFrequency",
           "humanDependence","systemDependence",
-          "crosssellAvailability"
+          "crosssellAvailability","usenGuideProgress"
         ];
         inputFields.forEach(field=>{
           const el = document.getElementById(field);
@@ -808,6 +858,9 @@
         // クロスセル可否
         savedData[storeName].selectedCrosssellAvailability = selectedCrosssellAvailability;
 
+        // ユーセン案内進捗
+        savedData[storeName].selectedUsenGuideProgress = selectedUsenGuideProgress;
+
         localStorage.setItem("storeData", JSON.stringify(savedData));
         return true;
       }catch(e){
@@ -822,7 +875,7 @@
         "notes","changes","mtgContent","nextPlan","reviewCount","surveyCount","searchRank",
         "crosssellNotes","sharedContent","mtgDate","mtgDependence","supportOutsideMtg","communicationFrequency",
         "humanDependence","systemDependence",
-        "crosssellAvailability"
+        "crosssellAvailability","usenGuideProgress"
       ];
       inputFields.forEach(field=>{ const el = document.getElementById(field); if(el) el.value = ""; });
 
@@ -846,6 +899,9 @@
 
       selectedCrosssellAvailability = "";
       document.querySelectorAll("#crosssellAvailabilityButtons button").forEach(b=>b.classList.remove("selected"));
+
+      selectedUsenGuideProgress = "";
+      document.querySelectorAll("#usenGuideProgressButtons button").forEach(b=>b.classList.remove("selected"));
     }
 
     // ====== クリップボード ======
@@ -871,6 +927,7 @@
       const crosssellNotes = document.getElementById("crosssellNotes").value;
 
       const crosssellAvailability = document.getElementById("crosssellAvailability").value;
+      const usenGuideProgress = document.getElementById("usenGuideProgress").value;
 
       let outputText = "";
 
@@ -900,6 +957,9 @@ ${nextPlan}
 
 ◆クロスセル可or不可◆
 ${crosssellAvailability}
+
+◆ユーセン案内進捗◆
+${usenGuideProgress}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
@@ -944,6 +1004,9 @@ ${nextPlan}
 
 ◆クロスセル可or不可◆
 ${crosssellAvailability}
+
+◆ユーセン案内進捗◆
+${usenGuideProgress}
 
 ◆クロスセル備考◆
 ${crosssellNotes}`;
